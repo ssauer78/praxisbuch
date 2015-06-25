@@ -8,3 +8,10 @@ Features:
 * store the patients and appointments
 * store expenses done (with date)
 * export the data for the tax declaration
+
+The database is H2 at the moment. But might be changed at some point. 
+
+The icons are from: 
+Ravenna Icon Set by Webdesigner Depot
+Design by Jack Cai
+http://www.webdesignerdepot.com
