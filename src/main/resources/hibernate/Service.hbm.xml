@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jun 3, 2015 4:33:50 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="ssd.app.model.Service" table="SERVICE" lazy="false">
+        <id name="id" type="long">
+            <column name="ID" />
+            <generator class="increment" />
+        </id>
+        <property name="created" type="java.util.Date">
+            <column name="CREATED" />
+        </property>
+        <property name="modified" type="java.util.Date">
+            <column name="MODIFIED" />
+        </property>
+        <property name="costPerUnit" type="int" access="field">
+            <column name="COSTPERUNIT" />
+        </property>
+        <property name="name" type="java.lang.String" access="field">
+            <column name="NAME" />
+        </property>
+    </class>
+</hibernate-mapping>

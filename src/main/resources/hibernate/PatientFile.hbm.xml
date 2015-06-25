@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jun 1, 2015 12:54:14 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="ssd.app.model.PatientFile" table="PATIENTFILE">
+     	<id name="id" type="long">
+            <column name="ID" />
+            <generator class="increment" />
+        </id>
+        <property name="created" type="java.util.Date">
+            <column name="CREATED" />
+        </property>
+        <property name="modified" type="java.util.Date">
+            <column name="MODIFIED" />
+        </property>
+        <many-to-one name="patient" class="ssd.app.model.Patient" fetch="join">
+            <column name="PATIENT" />
+        </many-to-one>
+        <property name="file" type="java.lang.String">
+            <column name="FILE" />
+        </property>
+    </class>
+</hibernate-mapping>

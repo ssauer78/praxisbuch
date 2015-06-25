@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jun 1, 2015 10:56:14 AM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="ssd.app.model.PatientDynamic" table="PATIENTDYNAMIC">
+        <id name="id" type="long">
+            <column name="ID" />
+            <generator class="increment" />
+        </id>
+        <properties name="patientfield" unique="true">
+	        <many-to-one name="patient" class="ssd.app.model.Patient" fetch="join">
+            	<column name="PATIENT" />
+        	</many-to-one>
+	        <property name="fieldname" type="java.lang.String">
+	            <column name="FIELDNAME" />
+	        </property>
+		</properties>
+        <property name="value" type="java.lang.String">
+            <column name="VALUE" />
+        </property>
+    </class>
+</hibernate-mapping>

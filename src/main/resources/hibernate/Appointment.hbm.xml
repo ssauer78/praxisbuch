@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jun 3, 2015 4:33:50 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="ssd.app.model.Appointment" table="APPOINTMENT" lazy="false">
+        <id name="id" type="long">
+            <column name="ID" />
+            <generator class="increment" />
+        </id>
+        <property name="created" type="java.util.Date">
+            <column name="CREATED" />
+        </property>
+        <property name="modified" type="java.util.Date">
+            <column name="MODIFIED" />
+        </property>
+        <property name="duration" type="int">
+            <column name="DURATION" />
+        </property>
+        <many-to-one name="patient" class="ssd.app.model.Patient" fetch="join">
+            <column name="PATIENT" />
+        </many-to-one>
+        <property name="description" type="java.lang.String">
+            <column name="DESCRIPTION" />
+        </property>
+        <many-to-one name="service" class="ssd.app.model.Service" fetch="join">
+            <column name="SERVICE" />
+        </many-to-one>
+        <property name="date" type="java.sql.Timestamp">
+            <column name="DATE" />
+        </property>
+    </class>
+</hibernate-mapping>
