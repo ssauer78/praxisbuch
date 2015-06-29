@@ -14,24 +14,29 @@
         <property name="modified" type="java.util.Date">
             <column name="MODIFIED" />
         </property>
+        <property name="name" type="java.lang.String">
+            <column name="NAME" />
+        </property>
+        <property name="givenName" type="java.lang.String">
+            <column name="GIVENNAME" />
+        </property>
         <property name="insurance" type="java.lang.String">
             <column name="INSURANCE" />
+        </property>
+        <property name="privatelyInsured" type="java.lang.Boolean">
+            <column name="PRIVATELYINSURED" default="FALSE"/>
+        </property>
+        <property name="assistanceInsurance" type="java.lang.Boolean">
+            <column name="ASSISTANCEINSURANCE" default="FALSE" />
         </property>
         <property name="birthday" type="java.sql.Timestamp">
             <column name="BIRTHDAY" />
         </property>
         <property name="phone" type="java.lang.String">
             <column name="PHONE" />
-            
         </property>
         <property name="email" type="java.lang.String">
             <column name="EMAIL" />
-        </property>
-        <property name="name" type="java.lang.String">
-            <column name="NAME" />
-        </property>
-        <property name="givenName" type="java.lang.String">
-            <column name="GIVENNAME" />
         </property>
         <property name="address" type="java.lang.String">
             <column name="ADDRESS" />
@@ -45,5 +50,8 @@
         <property name="country" type="java.lang.String">
             <column name="COUNTRY" />
         </property>
+        <!--<property name="photo" type="javafx.scene.image.Image">
+            <column name="PHOTO" />
+        </property> -->
     </class>
 </hibernate-mapping>
