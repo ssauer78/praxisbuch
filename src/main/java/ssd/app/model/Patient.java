@@ -17,17 +17,17 @@ public class Patient extends Item{
 	private static final Logger LOGGER = LoggerFactory.getLogger(Patient.class);
 	
 	private String name;
-	private String givenName;
-	private String insurance;
-	private Boolean privatelyInsured;
-	private Boolean assistanceInsurance;
+	private String givenName = "";
+	private String insurance = "";
+	private Boolean privatelyInsured = false;
+	private Boolean assistanceInsurance = false;
 	private Timestamp birthday;
 	//private Address address;
-	private String phone;
-	private String email;
-	private String address;
-	private String zipcode;
-	private String city;
+	private String phone = "";
+	private String email = "";
+	private String address = "";
+	private String zipcode = "";
+	private String city = "";
 	private String country = "Germany";
 	private Image photo;
 	
