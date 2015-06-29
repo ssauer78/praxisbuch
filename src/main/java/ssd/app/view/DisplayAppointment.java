@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -267,7 +266,8 @@ public class DisplayAppointment {
         	public TableCell<Appointment, Appointment> call(TableColumn<Appointment, Appointment> btnCol) {
         		return new TableCell<Appointment, Appointment>() {
         			final ImageView buttonGraphic = new ImageView(new Image(getClass().getResourceAsStream("/icons/Pencil.png")));
-        			final Button button = new Button(); {
+        			final Button button = new Button(); 
+        			{
         				button.setGraphic(buttonGraphic);
         				button.setTooltip(new Tooltip("Neuen Termin hinzufügen"));
         				button.setMinWidth(32);

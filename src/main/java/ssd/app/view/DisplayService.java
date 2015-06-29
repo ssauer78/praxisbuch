@@ -54,8 +54,9 @@ public class DisplayService {
 		TableView<Service> serviceTable = new TableView<Service>();
         serviceTable.setEditable(true);
 
-        TableColumn<Service, Service> serviceActionColumn = new TableColumn<>("Actions");
-        serviceActionColumn.setMinWidth(150);
+        TableColumn<Service, Service> serviceActionColumn = new TableColumn<>("");
+        serviceActionColumn.setMinWidth(50);
+        serviceActionColumn.setMaxWidth(50);
         serviceActionColumn.setCellValueFactory(new Callback<CellDataFeatures<Service, Service>, ObservableValue<Service>>() {
           @Override 
           public ObservableValue<Service> call(CellDataFeatures<Service, Service> features) {
