@@ -35,6 +35,8 @@ public class ApplicationWindow extends Application{
 	private Button serviceList;
 	private Button serviceAdd;
 	private Button appointmentList;
+	private Button expensesList;
+	private Button expensesAdd;
 	private Button patientList;
 	private Button patientAdd;
 	private Button closeApp;
@@ -93,6 +95,8 @@ public class ApplicationWindow extends Application{
     	serviceList = new Button();
     	serviceAdd = new Button();
     	appointmentList = new Button();
+    	expensesList = new Button();
+    	expensesAdd = new Button();
 
     	closeApp.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/Power.png"))));
     	closeApp.setTooltip(new Tooltip("PraxisBuch beenden"));
@@ -166,8 +170,32 @@ public class ApplicationWindow extends Application{
     	    	borderPane.setCenter(tv);
     	    }
     	});
+    	
+    	expensesList.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/Favourite.png"))));
+    	expensesList.setTooltip(new Tooltip("Ausgaben anzeigen"));
+    	expensesList.setOnAction(new EventHandler<ActionEvent>() {
+    	    @Override public void handle(ActionEvent e) {
+    	        LOGGER.debug("Expenses list");
+    	        Stage stage = (Stage) expensesList.getScene().getWindow();
+    	        stage.setTitle("Ausgaben");
+//    	        TableView<Appointment> tv = DisplayAppointment.createAppointmentTableView();
+//    	    	borderPane.setCenter(tv);
+    	    }
+    	});
+    	
+    	expensesAdd.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/FavouriteAdd.png"))));
+    	expensesAdd.setTooltip(new Tooltip("Ausgabe hinzufügen"));
+    	expensesAdd.setOnAction(new EventHandler<ActionEvent>() {
+    	    @Override public void handle(ActionEvent e) {
+    	        LOGGER.debug("Expenses add");
+    	        Stage stage = (Stage) expensesAdd.getScene().getWindow();
+    	        stage.setTitle("Ausgabe hinzufügen");
+//    	        TableView<Appointment> tv = DisplayAppointment.createAppointmentTableView();
+//    	    	borderPane.setCenter(tv);
+    	    }
+    	});
 
-    	tb.getItems().addAll(closeApp, patientList, patientAdd, appointmentList, serviceList, serviceAdd);
+    	tb.getItems().addAll(closeApp, patientList, patientAdd, appointmentList, serviceList, serviceAdd, expensesList, expensesAdd);
     	
     	return tb;
     }
