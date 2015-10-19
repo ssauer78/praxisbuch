@@ -1,22 +1,17 @@
 package ssd.app.view;
 
-import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
-import java.util.TimeZone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -27,19 +22,18 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Slider;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TableColumn.CellDataFeatures;
@@ -49,6 +43,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -56,11 +51,8 @@ import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 import ssd.app.helper.ApplicationHelper;
 import ssd.app.helper.PatientsHelper;
-import ssd.app.helper.ServiceHelper;
-import ssd.app.model.Appointment;
 import ssd.app.model.Patient;
 import ssd.app.model.PatientDynamic;
-import ssd.app.model.Service;
 
 public class DisplayPatient {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DisplayPatient.class);
@@ -71,7 +63,7 @@ public class DisplayPatient {
 		patientTable.setEditable(true);
 
 		TableColumn<Patient, Patient> patientAddAppointmentColumn = new TableColumn<>("");
-		patientAddAppointmentColumn.setMaxWidth(50);
+		patientAddAppointmentColumn.setMaxWidth(30);
 		patientAddAppointmentColumn.setSortable(false);
 		patientAddAppointmentColumn.setCellValueFactory(new Callback<CellDataFeatures<Patient, Patient>, ObservableValue<Patient>>() {
 			@Override 
@@ -83,13 +75,16 @@ public class DisplayPatient {
         	@Override 
         	public TableCell<Patient, Patient> call(TableColumn<Patient, Patient> btnCol) {
         		return new TableCell<Patient, Patient>() {
-        			final ImageView buttonGraphic = new ImageView(new Image(getClass().getResourceAsStream("/icons/Calendar.png")));
+        			final ImageView buttonGraphic = new ImageView(new Image(getClass().getResourceAsStream("/icons/Calendar.png"), (double)16, (double)16, true, true));
         			final Button bAddAppointment = new Button(); 
         			
         			{	// initialize buttons: added to default constructor
         				bAddAppointment.setGraphic(buttonGraphic);
         				bAddAppointment.setTooltip(new Tooltip("Neuen Termin hinzufügen"));
-        				bAddAppointment.setMinWidth(32);
+        				bAddAppointment.setMinWidth(20);
+        				bAddAppointment.setMaxWidth(20);
+        				bAddAppointment.setMaxHeight(20);
+        				bAddAppointment.setMinHeight(20);
         			}
         			
         			@Override 
@@ -114,7 +109,7 @@ public class DisplayPatient {
         });
         
         TableColumn<Patient, Patient> patientEditColumn = new TableColumn<>("");
-        patientEditColumn.setMaxWidth(50);
+        patientEditColumn.setMaxWidth(30);
 		patientEditColumn.setSortable(false);
 		patientEditColumn.setCellValueFactory(new Callback<CellDataFeatures<Patient, Patient>, ObservableValue<Patient>>() {
 			@Override 
@@ -126,13 +121,16 @@ public class DisplayPatient {
         	@Override 
         	public TableCell<Patient, Patient> call(TableColumn<Patient, Patient> btnCol) {
         		return new TableCell<Patient, Patient>() {
-        			final ImageView buttonGraphicEdit = new ImageView(new Image(getClass().getResourceAsStream("/icons/Pencil.png")));
+        			final ImageView buttonGraphicEdit = new ImageView(new Image(getClass().getResourceAsStream("/icons/Pencil.png"), (double)16, (double)16, true, true));
         			final Button bEdit = new Button();
         			
         			{	// initialize buttons: added to default constructor
         				bEdit.setGraphic(buttonGraphicEdit);
         				bEdit.setTooltip(new Tooltip("Patient bearbeiten"));
-        				bEdit.setMinWidth(32);
+        				bEdit.setMinWidth(20);
+        				bEdit.setMaxWidth(20);
+        				bEdit.setMaxHeight(20);
+        				bEdit.setMinHeight(20);
         			}
         			
         			@Override 
@@ -160,7 +158,7 @@ public class DisplayPatient {
         });
         
         TableColumn<Patient, Patient> patientDeleteColumn = new TableColumn<>("");
-        patientDeleteColumn.setMaxWidth(50);
+        patientDeleteColumn.setMaxWidth(30);
         patientDeleteColumn.setSortable(false);
         patientDeleteColumn.setCellValueFactory(new Callback<CellDataFeatures<Patient, Patient>, ObservableValue<Patient>>() {
 			@Override 
@@ -172,13 +170,17 @@ public class DisplayPatient {
         	@Override 
         	public TableCell<Patient, Patient> call(TableColumn<Patient, Patient> btnCol) {
         		return new TableCell<Patient, Patient>() {
-        			final ImageView buttonGraphicDelete = new ImageView(new Image(getClass().getResourceAsStream("/icons/Delete2.png")));
-        			final Button bEdit = new Button();
+        			final ImageView buttonGraphicDelete = new ImageView(
+        					new Image(getClass().getResourceAsStream("/icons/Delete2.png"), (double)16, (double)16, true, true));
+        			final Button bDelete = new Button();
         			
         			{	// initialize buttons: added to default constructor
-        				bEdit.setGraphic(buttonGraphicDelete);
-        				bEdit.setTooltip(new Tooltip("Patient bearbeiten"));
-        				bEdit.setMinWidth(32);
+        				bDelete.setGraphic(buttonGraphicDelete);
+        				bDelete.setTooltip(new Tooltip("Patient bearbeiten"));
+        				bDelete.setMinWidth(20);
+        				bDelete.setMaxWidth(20);
+        				bDelete.setMaxHeight(20);
+        				bDelete.setMinHeight(20);
         			}
         			
         			@Override 
@@ -189,11 +191,11 @@ public class DisplayPatient {
         					return;
         				}
         				
-        				setGraphic(bEdit);
-        				bEdit.setOnAction(new EventHandler<ActionEvent>() {
+        				setGraphic(bDelete);
+        				bDelete.setOnAction(new EventHandler<ActionEvent>() {
         					@Override 
         					public void handle(ActionEvent event) {
-        						LOGGER.debug("Handle button click 'delete service'");
+        						LOGGER.debug("Handle button click 'delete patient'");
         						try {
         							Alert confirm = new Alert(AlertType.CONFIRMATION);
         							confirm.setTitle("Wirklisch löschen?");
@@ -203,7 +205,7 @@ public class DisplayPatient {
         							if (result.get() == ButtonType.OK){
     									patient.delete();
     									Stage stage = (Stage) ApplicationWindow.getScene().getWindow();
-    					    	        stage.setTitle("Leistungen");
+    					    	        stage.setTitle("Patienten");
     									TableView<Patient> tv = createPatientTableView();
     					    	        ApplicationWindow.getBorderPane().setCenter(tv);
         							}
@@ -221,6 +223,7 @@ public class DisplayPatient {
         TableColumn<Patient, String> patientNameColumn = new TableColumn<Patient, String>("Nachname");
         patientNameColumn.setCellValueFactory(new PropertyValueFactory<Patient, String>("name"));
         patientNameColumn.setCellFactory(TextFieldTableCell.<Patient, String>forTableColumn(new DefaultStringConverter()));
+        
         patientNameColumn.setOnEditCommit(new EventHandler<CellEditEvent<Patient, String>>() {
         	@Override
         	public void handle(CellEditEvent<Patient, String> t) {
@@ -436,6 +439,16 @@ public class DisplayPatient {
         ImageView imageView = new ImageView(new Image(DisplayPatient.class.getResourceAsStream("/icons/VCardbig.png"), 0, 180, true, true));
         GridPane.setHalignment(imageView, HPos.LEFT);
         
+        List<PatientDynamic> pds = PatientDynamic.getDynamics(patient);
+        List<TextField> dynamics = new ArrayList<TextField>();
+        for(PatientDynamic patientDynamic : pds){
+        	TextField dyntf = new TextField();
+			dyntf.setText(patientDynamic.getValue());
+			dyntf.setPromptText(patientDynamic.getFieldname());
+			
+			dynamics.add(dyntf);
+        }
+        
         //****************** SUBMIT BUTTON ******************************
         Button submit = new Button("Speichern");
         submit.setOnAction((ActionEvent event) -> {
@@ -464,6 +477,17 @@ public class DisplayPatient {
         	patient.setZipcode(tfZip.getText());
         	patient.setCity(tfCity.getText());
         	
+        	for(TextField dyn : dynamics){
+        		PatientDynamic pdyn = PatientDynamic.getDynamic(patient, dyn.getPromptText());
+        		if(pdyn == null){
+        			pdyn = new PatientDynamic();
+        			pdyn.setPatient(patient);
+        			pdyn.setFieldname(dyn.getPromptText());
+        		}
+        		pdyn.setValue(dyn.getText());
+        		pdyn.save();
+        	}
+        	
     		try {
 				patient.save();
 				dialog.close();
@@ -476,6 +500,45 @@ public class DisplayPatient {
 			}
         });
         
+        Button close = new Button("Abbrechen");
+        close.setOnAction((ActionEvent event) -> {
+        	dialog.close();
+        });
+        
+        Button addDynamic = new Button("Extra hinzufügen");
+        addDynamic.setOnAction((ActionEvent event) -> {
+        	TextInputDialog dialog2 = new TextInputDialog("Extra hinzufügen");
+        	dialog2.setTitle("Extra hinzufügen");
+        	dialog2.setHeaderText("Geben Sie einen Namen für das Extrafeld");
+        	dialog2.setContentText("Extra Name:");
+        	// Traditional way to get the response value.
+        	Optional<String> result = dialog2.showAndWait();
+        	if (result.isPresent()){
+        	    LOGGER.debug("name: " + result.get());
+        	}
+        	
+        	// The Java 8 way to get the response value (with lambda expression).
+        	result.ifPresent(name -> {
+        		PatientDynamic _dyn = new PatientDynamic();
+            	_dyn.setPatient(patient);
+        		_dyn.setFieldname(name);
+        		_dyn.setValue("");
+        		if(_dyn.save()){
+	        		pds.add(_dyn);
+	        		TextField dyntf2 = new TextField();
+	    			dyntf2.setText(_dyn.getValue());
+	    			dyntf2.setPromptText(_dyn.getFieldname());
+	    			dynamics.add(dyntf2);	// so that the save button is aware of it
+	    			int row = 12 + pds.size();
+	        		gridPane.add(new Label(name), 0, row);
+	        		gridPane.add(dyntf2, 1, row, 2, 1);
+        		}else{
+        			errorLabel.setText("Der Extra-Wert konnte nicht hinzugefügt werden. ");
+            		errorLabel.getStyleClass().add("validation_error");
+        		}
+        	});
+        });
+        
         gridPane.add(imageView, 2, 0, 1, 6);
         gridPane.add(tfFirstName, 0, 0);	gridPane.add(tfLastName, 1, 0);
         gridPane.add(birthdayPicker, 0, 1, 2, 1);
@@ -486,9 +549,25 @@ public class DisplayPatient {
         gridPane.add(address, 0, 6, 2, 1);
         gridPane.add(tfStreet, 0, 7, 3, 1);	
         gridPane.add(tfZip, 0, 8);			gridPane.add(tfCity, 1, 8, 2, 1);
-        gridPane.add(submit, 0, 9);
-        gridPane.add(errorLabel, 1, 9, 2, 1);
-        Scene scene = new Scene(gridPane, 600, 500);
+        
+        gridPane.add(submit, 0, 9); gridPane.add(close, 1, 9);
+        gridPane.add(errorLabel, 1, 10, 2, 1);
+        
+        Label extras = new Label("Extra Felder");
+        extras.setUnderline(true);
+        gridPane.add(extras, 0, 11); gridPane.add(addDynamic, 1, 11);
+        int row = 11;
+        for(TextField dyn : dynamics){
+			Label dynl = new Label(dyn.getPromptText());
+			gridPane.add(dynl, 0, ++row);	gridPane.add(dyn, 1, row, 2, 1);
+        }
+        
+        ScrollPane sp = new ScrollPane();
+        sp.setFitToHeight(true);
+        
+        sp.setContent(gridPane);
+        
+        Scene scene = new Scene(sp, 600, 500);
         dialog.setScene(scene);
 		return dialog;
 	}
