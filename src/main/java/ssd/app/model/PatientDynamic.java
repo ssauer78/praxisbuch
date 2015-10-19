@@ -24,7 +24,7 @@ import ssd.app.dao.DbHelper;
 public class PatientDynamic {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PatientDynamic.class);
 	
-	private long id;
+	private long id = -1;
 
 	private Patient patient;
 	private String fieldname;
@@ -55,6 +55,29 @@ public class PatientDynamic {
 		this.value = value;
 	}
 	
+	public boolean save(){
+		if(this.getId() == -1){	// INSERT new patient dynamic 
+			return addDynamic();
+		}else{	// UPDATE existing patient dynamic
+			Session session = DbHelper.getInstance().openSession();
+			Transaction tx = null;
+			try{
+				tx = session.beginTransaction();
+				session.update(this); 
+				tx.commit();
+			}catch (HibernateException e) {
+				if (tx != null){
+					tx.rollback();
+				}
+				e.printStackTrace(); 
+				return false;
+			}finally {
+				session.close(); 
+			}
+		}
+		return true;
+	}
+	
 	public boolean addDynamic(){
 		LOGGER.debug("Add dynamic value " + value);
 		Session session = DbHelper.getInstance().openSession();
@@ -76,7 +99,7 @@ public class PatientDynamic {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static String getDynamic(Patient p, String fieldname){
+	public static PatientDynamic getDynamic(Patient p, String fieldname){
 		LOGGER.debug("Get dynamic value for " + fieldname);
 		Session session = DbHelper.getInstance().openSession();
 		try{
@@ -86,7 +109,7 @@ public class PatientDynamic {
 			LOGGER.debug(crit.toString());
 			List<PatientDynamic> dynamics = (List<PatientDynamic>)crit.list();
 			if(dynamics.size() > 0){
-				return dynamics.get(0).getValue();
+				return dynamics.get(0);
 			}
 		}catch (HibernateException e) {
 			e.printStackTrace(); 
@@ -94,7 +117,7 @@ public class PatientDynamic {
 			session.close(); 
 		}
 		
-		return "";
+		return null;
 	}
 	
 
