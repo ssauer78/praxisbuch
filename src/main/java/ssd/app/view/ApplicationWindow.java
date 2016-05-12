@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import ssd.app.dao.DbHelper;
 import ssd.app.model.Appointment;
+import ssd.app.model.Expense;
 import ssd.app.model.Patient;
 import ssd.app.model.Service;
 
@@ -39,7 +40,10 @@ public class ApplicationWindow extends Application{
 	private Button expensesAdd;
 	private Button patientList;
 	private Button patientAdd;
+	private Button patientSearch;
 	private Button closeApp;
+	private Button showCharts;
+	private Button export;
 	
 	private static final String LABEL_STYLE = "-fx-text-fill: black; -fx-font-size: 14;-fx-effect: dropshadow(one-pass-box, white, 5, 0, 1, 1);";
 	
@@ -66,6 +70,8 @@ public class ApplicationWindow extends Application{
     	ToolBar toolBar = createToolBar();
     	borderPane.setTop(toolBar);
     	scene = new Scene(borderPane, 800, 600);
+
+        stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/cw_logo.png")));
         stage.setTitle("PraxisBuch - Osteopathie CW");
         scene.getStylesheets().add("/css/global.css");
         stage.setScene(scene);
@@ -92,11 +98,14 @@ public class ApplicationWindow extends Application{
     	closeApp = new Button();
     	patientList = new Button();
     	patientAdd = new Button();
+    	patientSearch  = new Button();
     	serviceList = new Button();
     	serviceAdd = new Button();
     	appointmentList = new Button();
     	expensesList = new Button();
     	expensesAdd = new Button();
+    	showCharts = new Button();
+    	export = new Button();
 
     	closeApp.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/Power.png"))));
     	closeApp.setTooltip(new Tooltip("PraxisBuch beenden"));
@@ -131,6 +140,16 @@ public class ApplicationWindow extends Application{
     	        stage.setTitle("Patienten anlegen");
     	        GridPane gp = DisplayPatient.createPatientPane();
     	    	borderPane.setCenter(gp);
+    	    }
+    	});
+    	
+    	patientSearch.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/Search.png"))));
+    	patientSearch.setTooltip(new Tooltip("Patienten suchen"));
+    	patientSearch.setOnAction(new EventHandler<ActionEvent>() {
+    	    @Override public void handle(ActionEvent e) {
+    	        LOGGER.debug("Patient search");
+    	        Stage stage = (Stage) patientSearch.getScene().getWindow();
+    	        stage.setTitle("Patienten suchen");
     	    }
     	});
     	
@@ -174,28 +193,57 @@ public class ApplicationWindow extends Application{
     	expensesList.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/Favourite.png"))));
     	expensesList.setTooltip(new Tooltip("Ausgaben anzeigen"));
     	expensesList.setOnAction(new EventHandler<ActionEvent>() {
-    	    @Override public void handle(ActionEvent e) {
+    	    @Override 
+    	    public void handle(ActionEvent e) {
     	        LOGGER.debug("Expenses list");
     	        Stage stage = (Stage) expensesList.getScene().getWindow();
     	        stage.setTitle("Ausgaben");
-//    	        TableView<Appointment> tv = DisplayAppointment.createAppointmentTableView();
-//    	    	borderPane.setCenter(tv);
+    	        TableView<Expense> tv = DisplayExpenses.createExpensesTableView();
+    	    	borderPane.setCenter(tv);
     	    }
     	});
     	
     	expensesAdd.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/FavouriteAdd.png"))));
     	expensesAdd.setTooltip(new Tooltip("Ausgabe hinzufügen"));
     	expensesAdd.setOnAction(new EventHandler<ActionEvent>() {
-    	    @Override public void handle(ActionEvent e) {
+    	    @Override 
+    	    public void handle(ActionEvent e) {
     	        LOGGER.debug("Expenses add");
     	        Stage stage = (Stage) expensesAdd.getScene().getWindow();
     	        stage.setTitle("Ausgabe hinzufügen");
-//    	        TableView<Appointment> tv = DisplayAppointment.createAppointmentTableView();
-//    	    	borderPane.setCenter(tv);
+    	    	GridPane gp = DisplayExpenses.createExpensesPane();
+    	    	borderPane.setCenter(gp);
+    	    }
+    	});
+    	
+    	showCharts.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/BarChart.png"))));
+    	showCharts.setTooltip(new Tooltip("Verdienst anzeigen"));
+    	showCharts.setOnAction(new EventHandler<ActionEvent>() {
+    	    @Override 
+    	    public void handle(ActionEvent e) {
+    	        LOGGER.debug("show chart");
+    	        Stage stage = (Stage) showCharts.getScene().getWindow();
+    	        stage.setTitle("Verdienst anzeigen");
+//    	    	GridPane gp = DisplayExpenses.createExpensesPane();
+//    	    	borderPane.setCenter(gp);
+    	    }
+    	});
+    	
+    	export.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/ExportToFile.png"))));
+    	export.setTooltip(new Tooltip("Exportieren"));
+    	export.setOnAction(new EventHandler<ActionEvent>() {
+    	    @Override 
+    	    public void handle(ActionEvent e) {
+    	        LOGGER.debug("export");
+    	        Stage stage = (Stage) export.getScene().getWindow();
+    	        stage.setTitle("Exportieren");
+//    	    	GridPane gp = DisplayExpenses.createExpensesPane();
+//    	    	borderPane.setCenter(gp);
     	    }
     	});
 
-    	tb.getItems().addAll(closeApp, patientList, patientAdd, appointmentList, serviceList, serviceAdd, expensesList, expensesAdd);
+    	tb.getItems().addAll(closeApp, patientList, patientAdd, patientSearch, appointmentList, 
+    			serviceList, serviceAdd, expensesList, expensesAdd, export, showCharts);
     	
     	return tb;
     }
@@ -211,8 +259,5 @@ public class ApplicationWindow extends Application{
         gridPane.add(lbStart, 0, 0); 
         return gridPane;
 	}
-    
-
-    
 }
 

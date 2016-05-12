@@ -1,6 +1,7 @@
 package ssd.app.model;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -8,6 +9,8 @@ import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javafx.beans.property.FloatProperty;
+import javafx.beans.property.SimpleFloatProperty;
 import ssd.app.dao.DbHelper;
 
 public class Expense extends Item {
@@ -16,8 +19,8 @@ public class Expense extends Item {
 	
 	private String name;
 	private String description;
-	private String cost;
-	private String date;
+	private Float cost;
+	private Timestamp date;
 	
 	public String getName() {
 		return name;
@@ -31,16 +34,24 @@ public class Expense extends Item {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public String getCost() {
+	/**
+	 * For the interface only 
+	 * @return
+	 */
+	public final FloatProperty costProperty() {
+		FloatProperty value = new SimpleFloatProperty(cost);
+        return value;
+    }
+	public Float getCost() {
 		return cost;
 	}
-	public void setCost(String cost) {
+	public void setCost(Float cost) {
 		this.cost = cost;
 	}
-	public String getDate() {
+	public Timestamp getDate() {
 		return date;
 	}
-	public void setDate(String date) {
+	public void setDate(Timestamp date) {
 		this.date = date;
 	}
 	
@@ -66,7 +77,7 @@ public class Expense extends Item {
 				tx = session.beginTransaction();
 				session.delete(this); 
 				tx.commit();
-				LOGGER.warn("Removed the appointment with the ID " + id + ".");
+				LOGGER.warn("Removed the expense with the ID " + id + ". ");
 			}catch (HibernateException e) {
 				if (tx!=null) tx.rollback();
 				e.printStackTrace(); 
@@ -74,7 +85,7 @@ public class Expense extends Item {
 				session.close(); 
 			}
 		}else{
-			LOGGER.warn("It was tried to delete a non existing appointment.");
+			LOGGER.warn("It was tried to delete a non existing expense. ");
 		}
 	}
 	

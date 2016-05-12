@@ -1,4 +1,4 @@
-package ssd.app.view;
+	package ssd.app.view;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -22,11 +22,9 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableCell;
@@ -42,8 +40,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -297,7 +296,7 @@ public class DisplayPatient {
         TextField tfEmail = new TextField();
         tfEmail.setPromptText("E-Mail *");
         DatePicker birthdayPicker = new DatePicker();
-        StringConverter<LocalDate> converter = ApplicationHelper.getStringConverter();           
+        StringConverter<LocalDate> converter = ApplicationHelper.getStringConverterLocalDate();           
         birthdayPicker.setConverter(converter);
         birthdayPicker.setPromptText("Geburtstag " + ApplicationHelper.datePattern.toLowerCase());
         TextField tfInurance = new TextField();
@@ -318,6 +317,40 @@ public class DisplayPatient {
          
         ImageView imageView = new ImageView(new Image(DisplayPatient.class.getResourceAsStream("/icons/VCardbig.png"), 0, 180, true, true));
         GridPane.setHalignment(imageView, HPos.LEFT);
+        
+        List<PatientDynamic> pds = new ArrayList<PatientDynamic>();
+        List<TextField> dynamics = new ArrayList<TextField>();
+        for(PatientDynamic patientDynamic : pds){
+        	TextField dyntf = new TextField();
+			dyntf.setText(patientDynamic.getValue());
+			dyntf.setPromptText(patientDynamic.getFieldname());
+			
+			dynamics.add(dyntf);
+        }
+        
+        Button addDynamic = new Button("Extra hinzufügen");
+        addDynamic.setOnAction((ActionEvent event) -> {
+        	TextInputDialog dialog2 = new TextInputDialog("Extra hinzufügen");
+        	dialog2.setTitle("Extra hinzufügen");
+        	dialog2.setHeaderText("Geben Sie einen Namen für das Extrafeld");
+        	dialog2.setContentText("Extra Name:");
+        	// Traditional way to get the response value.
+        	Optional<String> result = dialog2.showAndWait();
+        	if (result.isPresent()){
+        	    LOGGER.debug("name: " + result.get());
+        	}
+        	
+        	// The Java 8 way to get the response value (with lambda expression).
+        	result.ifPresent(name -> {
+        		TextField dyntf2 = new TextField();
+    			dyntf2.setText("");
+    			dyntf2.setPromptText(name);
+    			dynamics.add(dyntf2);	// so that the save button is aware of it
+    			int row = 11 + dynamics.size();
+        		gridPane.add(new Label(name), 0, row);
+        		gridPane.add(dyntf2, 1, row, 2, 1);
+        	});
+        });
         
         Button submit = new Button("Speichern");
         submit.setOnAction((ActionEvent event) -> {
@@ -349,11 +382,38 @@ public class DisplayPatient {
         	
     		try {
 				p.save();
+				
+				// now we can save the dynamics. Not possible before, because no patient exists
+				for(TextField dyn : dynamics){
+	        		PatientDynamic pdyn = PatientDynamic.getDynamic(p, dyn.getPromptText());
+	        		if(pdyn == null){
+	        			pdyn = new PatientDynamic();
+	        			pdyn.setPatient(p);
+	        			pdyn.setFieldname(dyn.getPromptText());
+	        		}
+	        		pdyn.setValue(dyn.getText());
+	        		pdyn.save();
+	        	}
+				
+				// patient was saved -> go back to patient list
+				Stage stage = (Stage) submit.getScene().getWindow();
+    	        stage.setTitle("Patienten Liste");
+				TableView<Patient> tv = DisplayPatient.createPatientTableView();
+				BorderPane borderPane = ApplicationWindow.getBorderPane();
+    	        borderPane.setCenter(tv);
 			} catch (Exception e) {
 				LOGGER.debug(e.getMessage());
 				ApplicationHelper.showError(e, "Speichen des Patienten fehlgeschlagen", "Der Patient konnte nicht gespeichert werden. ");
 			}
         });
+        
+        Button addPicture = new Button("Bild hinzufügen");
+        addPicture.setOnAction((ActionEvent event) -> {
+        	Stage stage = (Stage) submit.getScene().getWindow();
+        	FileChooser fileChooser = new FileChooser();
+        	fileChooser.setTitle("Open Resource File");
+        	fileChooser.showOpenDialog(stage);
+        }); 
         
         gridPane.add(imageView, 2, 0, 1, 6);
         gridPane.add(tfFirstName, 0, 0);	gridPane.add(tfLastName, 1, 0);
@@ -367,6 +427,11 @@ public class DisplayPatient {
         gridPane.add(tfZip, 0, 8);			gridPane.add(tfCity, 1, 8, 2, 1);
         gridPane.add(submit, 0, 9);
         gridPane.add(errorLabel, 1, 9, 2, 1);
+        
+        Label extras = new Label("Extra Felder");
+        extras.setUnderline(true);
+        gridPane.add(extras, 0, 10); gridPane.add(addDynamic, 1, 10);
+        
         return gridPane;
 	}
     
@@ -404,7 +469,7 @@ public class DisplayPatient {
         tfEmail.setPromptText("E-Mail *");
         tfEmail.setText(patient.getEmail());
         DatePicker birthdayPicker = new DatePicker();
-        StringConverter<LocalDate> converter = ApplicationHelper.getStringConverter();
+        StringConverter<LocalDate> converter = ApplicationHelper.getStringConverterLocalDate();
         birthdayPicker.setConverter(converter);
         birthdayPicker.setPromptText("Geburtstag " + ApplicationHelper.datePattern.toLowerCase());
         if(patient.getBirthday() != null){
@@ -505,6 +570,13 @@ public class DisplayPatient {
         	dialog.close();
         });
         
+        Button addPicture = new Button("Bild hinzufügen");
+        addPicture.setOnAction((ActionEvent event) -> {
+        	FileChooser fileChooser = new FileChooser();
+        	fileChooser.setTitle("Open Resource File");
+        	fileChooser.showOpenDialog(stage);
+        });
+        
         Button addDynamic = new Button("Extra hinzufügen");
         addDynamic.setOnAction((ActionEvent event) -> {
         	TextInputDialog dialog2 = new TextInputDialog("Extra hinzufügen");
@@ -550,7 +622,7 @@ public class DisplayPatient {
         gridPane.add(tfStreet, 0, 7, 3, 1);	
         gridPane.add(tfZip, 0, 8);			gridPane.add(tfCity, 1, 8, 2, 1);
         
-        gridPane.add(submit, 0, 9); gridPane.add(close, 1, 9);
+        gridPane.add(submit, 0, 9); /* gridPane.add(addPicture, 0, 9);*/ gridPane.add(close, 1, 9);
         gridPane.add(errorLabel, 1, 10, 2, 1);
         
         Label extras = new Label("Extra Felder");

@@ -17,12 +17,10 @@ import ssd.app.model.Patient;
 public class PatientsDynamicTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PatientsDynamicTest.class);
 	
+	
 	@Before
 	public void init() throws SQLException{
-		LOGGER.debug("Truncate table patient");
-		Session session = DbHelper.getInstance().openSession();
-		session.createSQLQuery("TRUNCATE TABLE PatientDynamic").executeUpdate();
-		//session.createSQLQuery("TRUNCATE TABLE Patient").executeUpdate();
+		
 	}
 	
 	@Test
@@ -31,7 +29,6 @@ public class PatientsDynamicTest {
 		List<Patient> patients = PatientsHelper.getInstance().getPatients();
 		
 		Assert.assertNotNull(patients);
-		Assert.assertTrue(patients.isEmpty());
 		
 		Patient patient = new Patient();
 		patient.setName("Mustermann");
@@ -42,9 +39,15 @@ public class PatientsDynamicTest {
 		PatientDynamic pd = new PatientDynamic();
 		pd.setPatient(patient);
 		pd.setFieldname("Mobil2");
-		pd.setValue("01715606944");
+		String phone = "123 4567890";
+		pd.setValue(phone);
 		
 		pd.addDynamic();
+		
+		List<PatientDynamic> pdlist = PatientDynamic.getDynamics(patient);
+		Assert.assertEquals(1, pdlist.size());
+		
+		Assert.assertEquals(phone, PatientDynamic.getDynamic(patient, "Mobil2").getValue());
 	}
 	
 	@Test
@@ -60,23 +63,24 @@ public class PatientsDynamicTest {
 		PatientDynamic pd = new PatientDynamic();
 		pd.setPatient(patient);
 		pd.setFieldname("Mobil2");
-		pd.setValue("01715606944");
+		String phone = "123 4567890";
+		pd.setValue(phone);
 		pd.addDynamic();
 		
 		patient = null;
 		patient = PatientsHelper.getInstance().getPatient(pid);
 		
-		String value = PatientDynamic.getDynamic(patient, "Mobil2");
+		PatientDynamic pdyn = PatientDynamic.getDynamic(patient, "Mobil2");
 		
-		Assert.assertEquals("01715606944", value);
+		Assert.assertEquals(phone, pdyn.getValue());
 		
 		pd = null;
 		pd = new PatientDynamic();
 		pd.setPatient(patient);
 		pd.setFieldname("Mobil2");
 		pd.setValue("new mobil");
-		boolean succeess = pd.addDynamic();
-		Assert.assertFalse(succeess);
+		boolean success = pd.addDynamic();	// this should fail 
+		Assert.assertFalse(success);
 	}
 	
 	@Test
@@ -94,7 +98,8 @@ public class PatientsDynamicTest {
 		PatientDynamic pd = new PatientDynamic();
 		pd.setPatient(patient);
 		pd.setFieldname("Mobil2");
-		pd.setValue("01715606944");
+		String phone = "123 4567890";
+		pd.setValue(phone);
 		pd.addDynamic();
 		
 		pd = new PatientDynamic();
@@ -106,4 +111,6 @@ public class PatientsDynamicTest {
 		dynamics = PatientDynamic.getDynamics(patient);
 		Assert.assertEquals(dynamics.size(), 2);
 	}
+	
+	
 }

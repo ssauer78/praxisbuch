@@ -58,7 +58,11 @@ public class ApplicationHelper {
     	alert.showAndWait();
     }
     
-    public static StringConverter<LocalDate> getStringConverter(){
+	/**
+	 * Create a converter for LocalDate <> String
+	 * @return StringConverter
+	 */
+    public static StringConverter<LocalDate> getStringConverterLocalDate(){
     	LOGGER.debug("String converter called");
     	return new StringConverter<LocalDate>() {
             DateTimeFormatter dateFormatter = 
@@ -82,6 +86,10 @@ public class ApplicationHelper {
         }; 
     }
     
+    /**
+	 * Create a converter for LocalDateTime <> String
+	 * @return StringConverter
+	 */
     public static StringConverter<LocalDateTime> getStringConverterDateTime(){
     	LOGGER.debug("String converter called");
     	return new StringConverter<LocalDateTime>() {

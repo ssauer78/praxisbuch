@@ -17,7 +17,6 @@ public class Main {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 	
 	public static void main(String[] args){
-//		DbHelper.getDbHelper().getInstance();
 		DbHelper.getDbHelper().registerShutDownHook();
 		
 		SwingUtilities.invokeLater(new Runnable() {
@@ -34,22 +33,7 @@ public class Main {
 					e.printStackTrace();
 				}
 				
-//				Application app = new Application();
-//				app.setTitle("New app");
-//				app.setSize(800, 600);
-//				app.setLocationRelativeTo(null);
-//				app.setDefaultCloseOperation(Application.EXIT_ON_CLOSE);
-//				app.setVisible(true);
 				ApplicationWindow.launch(ApplicationWindow.class);
-//				app.addWindowListener(new WindowAdapter() {
-//					
-//					@Override
-//					public void windowClosing(WindowEvent e){
-//						DbHelper.getInstance().close();
-//						Main.LOGGER.debug("Done.");
-//					}
-//					
-//				});
 			}
 		});
 	}

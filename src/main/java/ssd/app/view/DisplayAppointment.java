@@ -79,7 +79,7 @@ public class DisplayAppointment {
         lbDate.setStyle(ApplicationWindow.getLabelStyle());
         GridPane.setHalignment(lbDate, HPos.LEFT);
         DatePicker datePicker = new DatePicker();
-        StringConverter<LocalDate> converter = ApplicationHelper.getStringConverter();           
+        StringConverter<LocalDate> converter = ApplicationHelper.getStringConverterLocalDate();           
         datePicker.setConverter(converter);
         datePicker.setPromptText(ApplicationHelper.datePattern.toLowerCase());
 
@@ -145,7 +145,7 @@ public class DisplayAppointment {
             public void changed(ObservableValue<? extends Number> ov,
                 Number old_val, Number new_val) {
                     timeMValue.setText(String.format("%d", (new_val.intValue() *  15)) + " min");
-            }
+            	}
         });
         timeMSlider.valueChangingProperty().addListener(observable -> {
         	timeMSlider.setValue(Math.round(timeMSlider.getValue()));
@@ -392,7 +392,7 @@ public class DisplayAppointment {
         appointmentServiceColumn.setEditable(false);
         
         appointmentTable.getColumns().addAll(appointmentAC, appointmentDelete, appointmentPatientColumn, appointmentDateColumn, 
-        		appointmentDurationColumn, appointmentDescriptionColumn, appointmentServiceColumn);
+        		appointmentDurationColumn, appointmentServiceColumn, appointmentDescriptionColumn);
         
         List<Appointment> appointments = new ArrayList<Appointment>();
 		try {
@@ -432,7 +432,7 @@ public class DisplayAppointment {
         lbDate.setStyle(ApplicationWindow.getLabelStyle());
         GridPane.setHalignment(lbDate, HPos.LEFT);
         DatePicker datePicker = new DatePicker();
-        StringConverter<LocalDate> converter = ApplicationHelper.getStringConverter();           
+        StringConverter<LocalDate> converter = ApplicationHelper.getStringConverterLocalDate();           
         datePicker.setConverter(converter);
         datePicker.setPromptText(ApplicationHelper.datePattern.toLowerCase());
         
@@ -511,7 +511,7 @@ public class DisplayAppointment {
         timeMSlider.valueChangingProperty().addListener(observable -> {
         	timeMSlider.setValue(Math.round(timeMSlider.getValue()));
         });
-        timeMSlider.adjustValue(cal.get(Calendar.MINUTE));
+        timeMSlider.adjustValue(Math.round(cal.get(Calendar.MINUTE) / 15));
         
         //********************* SERVICE *****************************
         Label lbService = new Label("Leistung: ");

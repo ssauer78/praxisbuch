@@ -10,32 +10,21 @@ import ssd.app.helper.PatientsHelper;
 import ssd.app.model.Patient;
 
 public class PatientsHelperTest {
-//	@Before
-//	public void init() throws SQLException{
-//		DbHelper.getInstance().init();
-//		try(Connection connection = DbHelper.getConnection(); Statement stmt = connection.createStatement()){
-//			stmt.execute("TRUNCATE TABLE patients");
-//			stmt.execute("ALTER TABLE patients ALTER COLUMN id RESTART WITH 1");
-//		}
-//	}
-	
-//	@After
-//	public void close(){
-//		DbHelper.getDbHelper().close();
-//	}
 	
 	@Test
-	public void testLoad() throws SQLException{
+	public void testSavePatient() throws SQLException{
 		List<Patient> patients = PatientsHelper.getInstance().getPatients();
 		
 		Assert.assertNotNull(patients);
-		Assert.assertTrue(patients.isEmpty());
+		int numberOfPatients = patients.size();
 		
 		Patient patient = new Patient();
 		patient.setName("Mustermann");
 		patient.setGivenName("Max");
 		patient.setEmail("max@mustermann.de");
 		patient.save();
+		
+		long patientIdMax = patient.getId();
 		
 		patient = new Patient();
 		patient.setName("Mustermann");
@@ -48,21 +37,23 @@ public class PatientsHelperTest {
 		patient.setGivenName("Test");
 		patient.setEmail("test@mustermann.de");
 		patient.save();
+		
+		long patientIdTest = patient.getId();
 
 		patients = PatientsHelper.getInstance().getPatients();
 		Assert.assertNotNull(patients);
-		Assert.assertEquals(3, patients.size());
+		Assert.assertEquals(numberOfPatients + 3, patients.size());
 		
 		patient = null;
-		patient = patients.get(0);
+		patient = patients.get(patients.size() - 3); // get Max Mustermann
 		Assert.assertNotNull(patient);
-		Assert.assertEquals(1L, patient.getId());
+		Assert.assertEquals(patientIdMax, patient.getId());
 		Assert.assertEquals("Mustermann", patient.getName());
 		Assert.assertEquals("max@mustermann.de", patient.getEmail());
 		
-		patient = patients.get(2);
+		patient = patients.get(patients.size() - 1);	// get Test Mustermann
 		Assert.assertNotNull(patient);
-		Assert.assertEquals(3L, patient.getId());
+		Assert.assertEquals(patientIdTest, patient.getId());
 		Assert.assertEquals("Mustermann", patient.getName());
 		Assert.assertEquals("test@mustermann.de", patient.getEmail());
 	}
@@ -74,9 +65,10 @@ public class PatientsHelperTest {
 		patient.setGivenName("Max");
 		patient.setEmail("max@mustermann.de");
 		patient.save();
+		long patientId = patient.getId();
 		
 		patient = null;
-		patient = PatientsHelper.getInstance().getPatient(1L);
+		patient = PatientsHelper.getInstance().getPatient(patientId);
 		
 		Assert.assertTrue(Patient.class.isInstance(patient));
 		

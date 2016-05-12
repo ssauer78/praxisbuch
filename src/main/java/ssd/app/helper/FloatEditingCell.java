@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ssd.app.model.Expense;
 import ssd.app.model.Service;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;
@@ -16,13 +17,13 @@ import javafx.scene.control.TextField;
  * @author sauer
  *
  */
-public class IntegerEditingCell extends TableCell<Service, Number> {
+public class FloatEditingCell extends TableCell<Expense, Number> {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(IntegerEditingCell.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(FloatEditingCell.class);
 	private final TextField textField = new TextField();
-	private final Pattern intPattern = Pattern.compile("-?\\d+");
+	private final Pattern floatPattern = Pattern.compile("[-+]?(\\d*[.])?\\d+");
 
-	public IntegerEditingCell() {
+	public FloatEditingCell() {
 		textField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
 			if (! isNowFocused) {
 				processEdit();
@@ -33,8 +34,8 @@ public class IntegerEditingCell extends TableCell<Service, Number> {
 
 	private void processEdit() {
 		String text = textField.getText();
-		if (intPattern.matcher(text).matches()) {
-			commitEdit(Integer.parseInt(text));
+		if (floatPattern.matcher(text).matches()) {
+			commitEdit(Float.parseFloat(text));
 		} else {
 			cancelEdit();
 		}
@@ -74,18 +75,18 @@ public class IntegerEditingCell extends TableCell<Service, Number> {
 		setGraphic(null);
 	}
 
-	// This seems necessary to persist the edit on loss of focus; not sure why:
-	@Override
-	public void commitEdit(Number value) {
-		super.commitEdit(value);
-		Service s = ((Service)this.getTableRow().getItem());
-		s.setCostPerUnit(value.intValue());
-		try {
-			s.save();
-		} catch (SQLException e) {
-			LOGGER.error(e.getMessage());
-			ApplicationHelper.showError(e, "Speichen fehlgeschlagen", 
-					s.toString() + " konnte nicht gespeichert werden. ");
-		} 
-	}
+//	// This seems necessary to persist the edit on loss of focus; not sure why:
+//	@Override
+//	public void commitEdit(Number value) {
+//		super.commitEdit(value);
+//		Service s = ((Service)this.getTableRow().getItem());
+//		s.setCostPerUnit(value.intValue());
+//		try {
+//			s.save();
+//		} catch (SQLException e) {
+//			LOGGER.error(e.getMessage());
+//			ApplicationHelper.showError(e, "Speichen fehlgeschlagen", 
+//					s.toString() + " konnte nicht gespeichert werden. ");
+//		} 
+//	}
 }

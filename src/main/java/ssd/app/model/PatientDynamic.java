@@ -90,7 +90,7 @@ public class PatientDynamic {
 			if (tx != null){
 				tx.rollback();
 			}
-			e.printStackTrace(); 
+			// e.printStackTrace(); 
 			return false;
 		}finally {
 			session.close(); 

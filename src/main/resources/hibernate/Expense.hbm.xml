@@ -20,10 +20,10 @@
         <property name="name" type="java.lang.String">
             <column name="NAME" />
         </property>
-        <property name="date" type="java.lang.String">
+        <property name="date" type="java.sql.Timestamp">
             <column name="DATE" />
         </property>
-        <property name="cost" type="java.lang.String">
+        <property name="cost" type="java.lang.Float">
             <column name="COST" />
         </property>
     </class>
