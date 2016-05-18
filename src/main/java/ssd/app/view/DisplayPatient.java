@@ -1,4 +1,4 @@
-	package ssd.app.view;
+package ssd.app.view;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -283,7 +283,7 @@ public class DisplayPatient {
 	
     protected static GridPane createPatientPane(){
 		GridPane gridPane = new GridPane();
-        gridPane.setPadding(new Insets(20, 0, 20, 20));
+        gridPane.setPadding(new Insets(20, 10, 20, 20));
         gridPane.setHgap(7); 
         gridPane.setVgap(7);
          

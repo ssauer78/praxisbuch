@@ -7,8 +7,11 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
@@ -17,10 +20,16 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ssd.app.dao.DbHelper;
+import ssd.app.helper.PatientsHelper;
 import ssd.app.model.Appointment;
 import ssd.app.model.Expense;
 import ssd.app.model.Patient;
@@ -76,12 +85,6 @@ public class ApplicationWindow extends Application{
         scene.getStylesheets().add("/css/global.css");
         stage.setScene(scene);
         stage.show();
-//        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-//            public void handle(WindowEvent we) {
-//                LOGGER.debug("Stage is closing");
-//                DbHelper.getInstance().close();
-//            }
-//        });
     }
     
     
@@ -148,8 +151,24 @@ public class ApplicationWindow extends Application{
     	patientSearch.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override public void handle(ActionEvent e) {
     	        LOGGER.debug("Patient search");
-    	        Stage stage = (Stage) patientSearch.getScene().getWindow();
-    	        stage.setTitle("Patienten suchen");
+            	List<Patient> patients = new ArrayList<Patient>();
+				try {
+					patients = PatientsHelper.getInstance().getPatients();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+            	ChoiceDialog<Patient> choosePatient = new ChoiceDialog<Patient>(null, patients);
+            	choosePatient.setTitle("Patient suchen");
+            	
+            	Optional<Patient> result = choosePatient.showAndWait();
+            	// The Java 8 way to get the response value (with lambda expression).
+            	result.ifPresent(patient -> {
+            		LOGGER.debug(patient.toString());
+            		// open a patient edit window (TODO: should we have it within the application or as a popup?)
+            		Stage dialog = DisplayPatient.createEditPatientDialog(patient);
+					dialog.show();
+            	});
     	    }
     	});
     	
@@ -237,8 +256,8 @@ public class ApplicationWindow extends Application{
     	        LOGGER.debug("export");
     	        Stage stage = (Stage) export.getScene().getWindow();
     	        stage.setTitle("Exportieren");
-//    	    	GridPane gp = DisplayExpenses.createExpensesPane();
-//    	    	borderPane.setCenter(gp);
+    	    	GridPane gp = DisplayExport.createExportPane(stage);
+    	    	borderPane.setCenter(gp);
     	    }
     	});
 
