@@ -1,11 +1,13 @@
 package ssd.app.view;
 
 import java.io.File;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -18,10 +20,16 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import ssd.app.helper.AppointmentHelper;
+import ssd.app.model.Appointment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/*
+ * https://examples.javacodegeeks.com/core-java/writeread-excel-files-in-java-example/
+ * 
+ */
 public class DisplayExport {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DisplayExport.class);
 	
@@ -42,12 +50,6 @@ public class DisplayExport {
 		}
         ChoiceBox<Integer> year = new ChoiceBox<Integer>(allYears);
         year.setValue(currentYear - 1); // select last year as default
-        // Create the export button and add functionality
-        Button export = new Button("Exportieren");
-        export.setOnAction((ActionEvent event) -> {	// if the button is triggered...
-        	LOGGER.debug(year.valueProperty().getValue().toString());
-        	// TODO add action
-        });
         
         Label lbSaveAs = new Label("Speichern unter: ");
         lbExport.setStyle(ApplicationWindow.getLabelStyle());
@@ -71,6 +73,26 @@ public class DisplayExport {
                 	lbShowWhere.textProperty().bind(new SimpleStringProperty(selectedDirectory.getAbsolutePath()));
                 }
             }
+        });
+        
+        // Create the export button and add functionality
+        Button export = new Button("Exportieren");
+        export.setOnAction((ActionEvent event) -> {	// if the button is triggered...
+        	LOGGER.debug(year.valueProperty().getValue().toString());
+        	List<Appointment> appointments = new ArrayList<Appointment>();
+    		try {
+    			appointments = AppointmentHelper.getInstance().getAppointments(year.getValue()); // get all appointments 
+    		} catch (SQLException e1) {
+    			// ignore => just show nothing
+    			LOGGER.error(e1.getMessage());
+    		} catch (ParseException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+    		LOGGER.debug(Integer.toString(appointments.size()));
+    		for (Appointment app : appointments) {
+				LOGGER.debug(app.toString());
+			}
         });
         
         gridPane.add(lbExport, 0, 0);	// column 1 ; row 1

@@ -10,8 +10,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
@@ -269,7 +267,7 @@ public class ApplicationWindow extends Application{
 	
 	public GridPane createStartPane(){
 		GridPane gridPane = new GridPane();
-        gridPane.setPadding(new Insets(20, 0, 20, 20));
+        gridPane.setPadding(new Insets(20, 10, 20, 20));
         gridPane.setHgap(7); 
         gridPane.setVgap(7);
         

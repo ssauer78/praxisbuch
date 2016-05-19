@@ -2,6 +2,7 @@ package ssd.app.view;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -396,10 +397,13 @@ public class DisplayAppointment {
         
         List<Appointment> appointments = new ArrayList<Appointment>();
 		try {
-			appointments = AppointmentHelper.getInstance().getAppointments();
+			appointments = AppointmentHelper.getInstance().getAppointments(0); // get all appointments 
 		} catch (SQLException e1) {
 			// ignore => just show nothing
 			LOGGER.error(e1.getMessage());
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		if(appointments.size() > 0){
 	        ObservableList<Appointment> data = FXCollections.observableList(appointments);
