@@ -1,11 +1,7 @@
 package ssd.app.view;
 
 import java.io.File;
-import java.sql.SQLException;
-import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -20,8 +16,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import ssd.app.helper.AppointmentHelper;
-import ssd.app.model.Appointment;
+import ssd.app.helper.ExportHelper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,20 +74,7 @@ public class DisplayExport {
         Button export = new Button("Exportieren");
         export.setOnAction((ActionEvent event) -> {	// if the button is triggered...
         	LOGGER.debug(year.valueProperty().getValue().toString());
-        	List<Appointment> appointments = new ArrayList<Appointment>();
-    		try {
-    			appointments = AppointmentHelper.getInstance().getAppointments(year.getValue()); // get all appointments 
-    		} catch (SQLException e1) {
-    			// ignore => just show nothing
-    			LOGGER.error(e1.getMessage());
-    		} catch (ParseException e) {
-    			// TODO Auto-generated catch block
-    			e.printStackTrace();
-    		}
-    		LOGGER.debug(Integer.toString(appointments.size()));
-    		for (Appointment app : appointments) {
-				LOGGER.debug(app.toString());
-			}
+        	ExportHelper.exportForYear(year.getValue(), lbShowWhere.getText()); // TODO we might want to store the directory s
         });
         
         gridPane.add(lbExport, 0, 0);	// column 1 ; row 1

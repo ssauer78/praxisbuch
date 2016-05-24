@@ -2,9 +2,14 @@ package ssd.app.view;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,6 +32,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -49,7 +57,9 @@ import javafx.util.Callback;
 import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 import ssd.app.helper.ApplicationHelper;
+import ssd.app.helper.AppointmentHelper;
 import ssd.app.helper.PatientsHelper;
+import ssd.app.model.Appointment;
 import ssd.app.model.Patient;
 import ssd.app.model.PatientDynamic;
 
@@ -146,7 +156,10 @@ public class DisplayPatient {
 							@Override
 							public void handle(ActionEvent event) {
 								LOGGER.debug("Handle edit button click");
-								Stage dialog = DisplayPatient.createEditPatientDialog(patient);
+								// Stage dialog = DisplayPatient.createEditPatientDialog(patient);
+								// dialog.show();
+								
+								Stage dialog = DisplayPatient.getEditPatientDialog(patient);
 								dialog.show();
 							}
         					
@@ -281,7 +294,12 @@ public class DisplayPatient {
 		return patientTable;
 	}
 	
-    protected static GridPane createPatientPane(){
+	/**
+	 * Show a GridPane to add a new patient! 
+	 * 
+	 * @return
+	 */
+    protected static ScrollPane createPatientPane(){
 		GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(20, 10, 20, 20));
         gridPane.setHgap(7); 
@@ -432,22 +450,38 @@ public class DisplayPatient {
         extras.setUnderline(true);
         gridPane.add(extras, 0, 10); gridPane.add(addDynamic, 1, 10);
         
-        return gridPane;
+
+        ScrollPane sp = new ScrollPane(gridPane);
+        return sp;
 	}
     
     /**
-     * Create the edit dialog for a patient. 
+     * Open the patient edit pane in a popup window! 
      * 
      * @param patient
      * @return
      */
-    protected static Stage createEditPatientDialog(Patient patient) {
-		Stage dialog = new Stage();
+    protected static Stage getEditPatientDialog(Patient patient) {
+    	Stage dialog = new Stage();
 		dialog.initModality(Modality.APPLICATION_MODAL);	// "Lock" the parent window
 		Stage stage = (Stage)ApplicationWindow.getScene().getWindow();
 		dialog.initOwner(stage);
 		dialog.setTitle("Patient bearbeiten");
-		
+		ScrollPane sp = createEditPatientPane(patient, stage, dialog);
+		Scene scene = new Scene(sp, 600, 500);
+        dialog.setScene(scene);
+		return dialog;
+    }
+    
+    /**
+     * Create the edit dialog for a patient. 
+     * 
+     * @param patient	The patient object
+     * @param stage		The application window
+     * @param dialog	The dialog window
+     * @return
+     */
+    protected static ScrollPane createEditPatientPane(Patient patient, Stage stage, Stage dialog) {
 		GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(20, 10, 20, 20));
         gridPane.setHgap(7); 
@@ -555,7 +589,9 @@ public class DisplayPatient {
         	
     		try {
 				patient.save();
-				dialog.close();
+				if(dialog != null){	// do we have a dialog to close?
+					dialog.close();
+				}
 				stage.setTitle("Patienten Liste");
 				TableView<Patient> tv = DisplayPatient.createPatientTableView();
     	        ApplicationWindow.getBorderPane().setCenter(tv);
@@ -567,7 +603,9 @@ public class DisplayPatient {
         
         Button close = new Button("Abbrechen");
         close.setOnAction((ActionEvent event) -> {
-        	dialog.close();
+        	if(dialog != null){	// do we have a dialog to close?
+        		dialog.close();
+        	}
         });
         
         Button addPicture = new Button("Bild hinzufügen");
@@ -611,6 +649,39 @@ public class DisplayPatient {
         	});
         });
         
+        List<Appointment> appointments = AppointmentHelper.getAppointments(patient);
+        ListView<Appointment> appointmentsView = new ListView<Appointment>();
+        ObservableList<Appointment> items = FXCollections.observableArrayList ();
+        for (Appointment appointment : appointments) {
+        	items.add(appointment);
+		}
+        appointmentsView.setItems(items);
+        appointmentsView.setCellFactory(new Callback<ListView<Appointment>, ListCell<Appointment>>(){
+            @Override
+            public ListCell<Appointment> call(ListView<Appointment> p) {
+                ListCell<Appointment> cell = new ListCell<Appointment>(){
+                    @Override
+                    protected void updateItem(Appointment a, boolean bln) {
+                        super.updateItem(a, bln);
+                        if (a != null) {
+                        	DateFormat outputFormatter = new SimpleDateFormat("dd.MM.yyyy");
+                        	String output = outputFormatter.format(a.getDate());	
+                            setText(output + " - " + a.getService().getName() + " - " + a.getDuration() + " min");
+                        }
+                    }
+                };
+                return cell;
+            }
+        });
+        appointmentsView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Appointment>() {
+            @Override
+            public void changed(ObservableValue<? extends Appointment> observable, Appointment oldValue, Appointment newValue) {
+                System.out.println("ListView selection changed from oldValue = " 
+                        + oldValue + " to newValue = " + newValue);
+            }
+        });
+        
+        gridPane.add(appointmentsView, 3, 0, 1, (12 + dynamics.size()));
         gridPane.add(imageView, 2, 0, 1, 6);
         gridPane.add(tfFirstName, 0, 0);	gridPane.add(tfLastName, 1, 0);
         gridPane.add(birthdayPicker, 0, 1, 2, 1);
@@ -638,9 +709,6 @@ public class DisplayPatient {
         sp.setFitToHeight(true);
         
         sp.setContent(gridPane);
-        
-        Scene scene = new Scene(sp, 600, 500);
-        dialog.setScene(scene);
-		return dialog;
+        return sp;
 	}
 }

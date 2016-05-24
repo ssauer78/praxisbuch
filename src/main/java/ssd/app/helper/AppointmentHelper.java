@@ -16,6 +16,7 @@ import org.hibernate.Transaction;
 
 import ssd.app.dao.DbHelper;
 import ssd.app.model.Appointment;
+import ssd.app.model.Patient;
 
 public class AppointmentHelper {
 
@@ -58,6 +59,35 @@ public class AppointmentHelper {
 			if(query == null){
 				query = session.createQuery("FROM Appointment");
 			}
+			appointments = (List<Appointment>)query.list(); 
+			tx.commit();
+		}catch (HibernateException e) {
+			if(tx != null){
+				tx.rollback();
+			}
+			e.printStackTrace(); 
+		}finally {
+			session.close(); 
+		}
+		return appointments;
+	}
+	
+	/**
+	 * Get all appointments for a specific patient
+	 * @param patient	The patient object
+	 * @return	Found appointments
+	 * @throws SQLException	
+	 * @throws ParseException
+	 */
+	@SuppressWarnings("unchecked")
+	public static List<Appointment> getAppointments(Patient patient){
+		List<Appointment> appointments = new ArrayList<Appointment>();
+		Session session = DbHelper.getInstance().openSession();
+		Transaction tx = null;
+		try{
+			tx = session.beginTransaction();
+			Query query = session.createQuery("FROM Appointment WHERE patient = :patient").setParameter("patient", patient);
+			
 			appointments = (List<Appointment>)query.list(); 
 			tx.commit();
 		}catch (HibernateException e) {

@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
@@ -68,15 +69,12 @@ public class ApplicationWindow extends Application{
     @Override
     public void start(Stage stage) throws Exception{
     	borderPane = new BorderPane();
-    	//bp.setPadding(new Insets(10, 20, 10, 20));
     	GridPane gp = createStartPane();
         
     	borderPane.setCenter(gp);
-//    	MenuBar menuBar = createMenu();
-//        bp.setTop(menuBar);
     	ToolBar toolBar = createToolBar();
     	borderPane.setTop(toolBar);
-    	scene = new Scene(borderPane, 800, 600);
+    	scene = new Scene(borderPane, 900, 600);
 
         stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/cw_logo.png")));
         stage.setTitle("PraxisBuch - Osteopathie CW");
@@ -139,8 +137,9 @@ public class ApplicationWindow extends Application{
     	        LOGGER.debug("Patient add");
     	        Stage stage = (Stage) patientAdd.getScene().getWindow();
     	        stage.setTitle("Patienten anlegen");
-    	        GridPane gp = DisplayPatient.createPatientPane();
-    	    	borderPane.setCenter(gp);
+    	        ScrollPane sp = DisplayPatient.createPatientPane();
+    	        //ScrollPane sp = DisplayPatient.createEditPatientDialog(new Patient(), stage, null);
+    	    	borderPane.setCenter(sp);
     	    }
     	});
     	
@@ -164,8 +163,12 @@ public class ApplicationWindow extends Application{
             	result.ifPresent(patient -> {
             		LOGGER.debug(patient.toString());
             		// open a patient edit window (TODO: should we have it within the application or as a popup?)
-            		Stage dialog = DisplayPatient.createEditPatientDialog(patient);
-					dialog.show();
+            		// Stage dialog = DisplayPatient.createEditPatientDialog(patient);
+					// dialog.show();
+            		Stage stage = (Stage) patientAdd.getScene().getWindow();
+        	        stage.setTitle("Patienten anlegen");
+        	        ScrollPane sp = DisplayPatient.createEditPatientPane(patient, stage, null); // open the patient edit window in the main app
+        	    	borderPane.setCenter(sp);
             	});
     	    }
     	});
