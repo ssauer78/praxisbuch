@@ -16,7 +16,7 @@ public class Appointment extends Item {
 	
 	private Patient patient;
 	private Timestamp date;
-	private int duration;
+	private double duration;
 	private Service service;
 	private String description;
 	
@@ -33,10 +33,10 @@ public class Appointment extends Item {
 	public void setDate(Timestamp date) {
 		this.date = date;
 	}
-	public int getDuration() {
+	public double getDuration() {
 		return duration;
 	}
-	public void setDuration(int duration) {
+	public void setDuration(double duration) {
 		this.duration = duration;
 	}
 	public Service getService() {

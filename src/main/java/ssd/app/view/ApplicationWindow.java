@@ -167,7 +167,7 @@ public class ApplicationWindow extends Application{
 					// dialog.show();
             		Stage stage = (Stage) patientAdd.getScene().getWindow();
         	        stage.setTitle("Patienten anlegen");
-        	        ScrollPane sp = DisplayPatient.createEditPatientPane(patient, stage, null); // open the patient edit window in the main app
+        	        ScrollPane sp = DisplayPatient.createEditPatientPane(patient, stage, null, true); // open the patient edit window in the main app
         	    	borderPane.setCenter(sp);
             	});
     	    }

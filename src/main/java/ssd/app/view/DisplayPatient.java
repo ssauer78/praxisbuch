@@ -3,13 +3,10 @@ package ssd.app.view;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Optional;
 
@@ -467,8 +464,8 @@ public class DisplayPatient {
 		Stage stage = (Stage)ApplicationWindow.getScene().getWindow();
 		dialog.initOwner(stage);
 		dialog.setTitle("Patient bearbeiten");
-		ScrollPane sp = createEditPatientPane(patient, stage, dialog);
-		Scene scene = new Scene(sp, 600, 500);
+		ScrollPane sp = createEditPatientPane(patient, stage, dialog, false);
+		Scene scene = new Scene(sp, 650, 550);
         dialog.setScene(scene);
 		return dialog;
     }
@@ -481,7 +478,7 @@ public class DisplayPatient {
      * @param dialog	The dialog window
      * @return
      */
-    protected static ScrollPane createEditPatientPane(Patient patient, Stage stage, Stage dialog) {
+    protected static ScrollPane createEditPatientPane(Patient patient, Stage stage, Stage dialog, Boolean showAppointments) {
 		GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(20, 10, 20, 20));
         gridPane.setHgap(7); 
@@ -649,41 +646,52 @@ public class DisplayPatient {
         	});
         });
         
-        List<Appointment> appointments = AppointmentHelper.getAppointments(patient);
-        ListView<Appointment> appointmentsView = new ListView<Appointment>();
-        ObservableList<Appointment> items = FXCollections.observableArrayList ();
-        for (Appointment appointment : appointments) {
-        	items.add(appointment);
-		}
-        appointmentsView.setItems(items);
-        appointmentsView.setCellFactory(new Callback<ListView<Appointment>, ListCell<Appointment>>(){
-            @Override
-            public ListCell<Appointment> call(ListView<Appointment> p) {
-                ListCell<Appointment> cell = new ListCell<Appointment>(){
-                    @Override
-                    protected void updateItem(Appointment a, boolean bln) {
-                        super.updateItem(a, bln);
-                        if (a != null) {
-                        	DateFormat outputFormatter = new SimpleDateFormat("dd.MM.yyyy");
-                        	String output = outputFormatter.format(a.getDate());	
-                            setText(output + " - " + a.getService().getName() + " - " + a.getDuration() + " min");
-                        }
-                    }
-                };
-                return cell;
-            }
-        });
-        appointmentsView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Appointment>() {
-            @Override
-            public void changed(ObservableValue<? extends Appointment> observable, Appointment oldValue, Appointment newValue) {
-                System.out.println("ListView selection changed from oldValue = " 
-                        + oldValue + " to newValue = " + newValue);
-            }
-        });
+        List<Appointment> appointments = null;
+        ListView<Appointment> appointmentsView = null;
+        if(showAppointments){ 
+	        appointments = AppointmentHelper.getAppointments(patient);
+	        appointmentsView = new ListView<Appointment>();
+	        ObservableList<Appointment> items = FXCollections.observableArrayList ();
+	        for (Appointment appointment : appointments) {
+	        	items.add(appointment);
+			}
+	        appointmentsView.setItems(items);
+	        appointmentsView.setCellFactory(new Callback<ListView<Appointment>, ListCell<Appointment>>(){
+	            @Override
+	            public ListCell<Appointment> call(ListView<Appointment> p) {
+	                ListCell<Appointment> cell = new ListCell<Appointment>(){
+	                    @Override
+	                    protected void updateItem(Appointment a, boolean bln) {
+	                        super.updateItem(a, bln);
+	                        if (a != null) {
+	                        	DateFormat outputFormatter = new SimpleDateFormat("dd.MM.yyyy");
+	                        	String output = outputFormatter.format(a.getDate());	
+	                            setText(output + " - " + a.getService().getName() + " - " + a.getDuration() + " min");
+	                        }
+	                    }
+	                };
+	                return cell;
+	            }
+	        });
+	        appointmentsView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Appointment>() {
+	            @Override
+	            public void changed(ObservableValue<? extends Appointment> observable, Appointment oldValue, Appointment newValue) {
+	                System.out.println("ListView selection changed from oldValue = " 
+	                        + oldValue + " to newValue = " + newValue);
+	            }
+	        });
+        }
         
-        gridPane.add(appointmentsView, 3, 0, 1, (12 + dynamics.size()));
+        if(showAppointments){ 
+	        Label appointmentHead = new Label("Termine");
+	        appointmentHead.setUnderline(true);
+	        gridPane.add(appointmentHead, 3, 0);
+        }
         gridPane.add(imageView, 2, 0, 1, 6);
         gridPane.add(tfFirstName, 0, 0);	gridPane.add(tfLastName, 1, 0);
+        if(showAppointments){ 
+        	gridPane.add(appointmentsView, 3, 1, 1, (11 + dynamics.size()));
+        }
         gridPane.add(birthdayPicker, 0, 1, 2, 1);
         gridPane.add(tfInurance, 0, 2, 2, 1);
         gridPane.add(cbPrivate, 0, 3);		gridPane.add(cbAssistance, 1, 3, 2, 1);

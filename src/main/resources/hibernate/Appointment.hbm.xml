@@ -14,7 +14,7 @@
         <property name="modified" type="java.util.Date">
             <column name="MODIFIED" />
         </property>
-        <property name="duration" type="int">
+        <property name="duration" type="double">
             <column name="DURATION" />
         </property>
         <many-to-one name="patient" class="ssd.app.model.Patient" fetch="join">

@@ -194,17 +194,17 @@ public class DisplayAppointment {
         GridPane.setHalignment(lbService, HPos.LEFT);
         TextField appointmentDuration = new TextField ();
         appointmentDuration.setPrefColumnCount(3);
-        appointmentDuration.lengthProperty().addListener(new ChangeListener<Number>(){
+        appointmentDuration.textProperty().addListener(new ChangeListener<String>(){
         	@Override
-        	public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {              
-        		if(newValue.intValue() > oldValue.intValue()){
-        			char ch = appointmentDuration.getText().charAt(oldValue.intValue());              
-        			// Check if the new character is the number or other's
-        			if(!(ch >= '0' && ch <= '9' )){
-        				// if it's not number then just setText to previous one
-        				appointmentDuration.setText(appointmentDuration.getText().substring(0, appointmentDuration.getText().length()-1)); 
-        			}
-        		}
+        	public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+    			try{
+    				if(!newValue.isEmpty()){
+	    				// test if what the user gives is actually a double
+	    				Double.parseDouble(appointmentDuration.getText());
+    				}
+    			}catch(NumberFormatException e){
+    				appointmentDuration.setText(oldValue);
+    			}
             }
         });
         
@@ -221,7 +221,7 @@ public class DisplayAppointment {
         	appointment.setDate(Timestamp.valueOf(localDate.atTime(hours, minutes)));
         	appointment.setDescription(description.getText());
         	appointment.setService(comboBox.getValue());
-        	appointment.setDuration(Integer.parseInt(appointmentDuration.getText()));
+        	appointment.setDuration(Double.parseDouble(appointmentDuration.getText()));
         	appointment.setCreated(new Date());
         	appointment.setModified(new Date());
         	try {
@@ -377,8 +377,8 @@ public class DisplayAppointment {
         );
         appointmentDateColumn.setEditable(false);
         
-        final TableColumn<Appointment, Integer> appointmentDurationColumn = new TableColumn<Appointment, Integer>("Dauer");
-        appointmentDurationColumn.setCellValueFactory(new PropertyValueFactory<Appointment, Integer>("Duration"));
+        final TableColumn<Appointment, Double> appointmentDurationColumn = new TableColumn<Appointment, Double>("Dauer");
+        appointmentDurationColumn.setCellValueFactory(new PropertyValueFactory<Appointment, Double>("Duration"));
         appointmentDurationColumn.setEditable(false);
         
         final TableColumn<Appointment, String> appointmentDescriptionColumn = new TableColumn<Appointment, String>("Info");
@@ -558,20 +558,20 @@ public class DisplayAppointment {
         Label lbDuration = new Label("Dauer: ");
         lbDuration.setStyle(ApplicationWindow.getLabelStyle());
         GridPane.setHalignment(lbService, HPos.LEFT);
-        TextField appointmentDuration = new TextField ();
+        TextField appointmentDuration = new TextField();
         appointmentDuration.setPrefColumnCount(3);
-        appointmentDuration.appendText(Integer.toString(appointment.getDuration()));
-        appointmentDuration.lengthProperty().addListener(new ChangeListener<Number>(){
+        appointmentDuration.appendText(Double.toString(appointment.getDuration()));
+        appointmentDuration.textProperty().addListener(new ChangeListener<String>(){
         	@Override
-        	public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {              
-        		if(newValue.intValue() > oldValue.intValue()){
-        			char ch = appointmentDuration.getText().charAt(oldValue.intValue());              
-        			// Check if the new character is the number or other's
-        			if(!(ch >= '0' && ch <= '9' )){
-        				// if it's not number then just setText to previous one
-        				appointmentDuration.setText(appointmentDuration.getText().substring(0, appointmentDuration.getText().length()-1)); 
-        			}
-        		}
+        	public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+    			try{
+    				if(!newValue.isEmpty()){
+	    				// test if what the user gives is actually a double
+	    				Double.parseDouble(appointmentDuration.getText());
+    				}
+    			}catch(NumberFormatException e){
+    				appointmentDuration.setText(oldValue);
+    			}
             }
         });
         
@@ -585,7 +585,7 @@ public class DisplayAppointment {
         	appointment.setDate(Timestamp.valueOf(localDate.atTime(hours, minutes)));
         	appointment.setDescription(description.getText());
         	appointment.setService(comboBox.getValue());
-        	appointment.setDuration(Integer.parseInt(appointmentDuration.getText()));
+        	appointment.setDuration(Double.parseDouble(appointmentDuration.getText()));
         	appointment.setCreated(new Date());
         	appointment.setModified(new Date());
         	try {

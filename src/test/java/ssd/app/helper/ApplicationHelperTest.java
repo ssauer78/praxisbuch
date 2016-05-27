@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import org.junit.Test;
 
 import javafx.util.StringConverter;
+import ssd.app.model.Patient;
 
 public class ApplicationHelperTest {
 
@@ -26,6 +27,31 @@ public class ApplicationHelperTest {
 		assertTrue(date2.getClass().equals(LocalDate.class));	// useless?
 		
 		assertNotEquals(string2, converter.toString(date2));	// should fail because there is no 31 of April
+	}
+	
+	
+	@Test
+	public void getAppointmentsForYear() throws Exception{
+		Patient patient = new Patient();
+		patient.setName("Mustermann");
+		patient.setGivenName("Max");
+		patient.setEmail("max@mustermann.de");
+		patient.save();
+		
+		// TODO
+	}
+	
+	@Test
+	public void getAppointmentsForPatient() throws Exception{
+		Patient patient = new Patient();
+		patient.setName("Mustermann");
+		patient.setGivenName("Max");
+		patient.setEmail("max@mustermann.de");
+		patient.save();
+		
+		long patientId = patient.getId();
+		
+		// TODO
 	}
 
 }
