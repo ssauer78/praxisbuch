@@ -50,6 +50,9 @@
         <property name="country" type="java.lang.String">
             <column name="COUNTRY" />
         </property>
+        <property name="removed" type="java.lang.Boolean">
+            <column name="REMOVED" default="FALSE"/>
+        </property>
         <!--<property name="photo" type="javafx.scene.image.Image">
             <column name="PHOTO" />
         </property> -->

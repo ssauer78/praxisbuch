@@ -32,7 +32,7 @@ public class PatientsHelper {
 		Transaction tx = null;
 		try{
 			tx = session.beginTransaction();
-			Query query = session.createQuery("FROM Patient");
+			Query query = session.createQuery("FROM Patient WHERE removed=false");
 			patients = (List<Patient>)query.list();
 			tx.commit();
 		}catch (HibernateException e) {

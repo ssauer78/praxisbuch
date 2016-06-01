@@ -26,6 +26,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.Alert.AlertType;
@@ -210,11 +211,17 @@ public class DisplayExpenses {
         lbEuro.setStyle(ApplicationWindow.getLabelStyle());
         GridPane.setHalignment(lbEuro, HPos.RIGHT);
         
+        Label lbInfo = new Label("Beschreibung");
+        lbInfo.setStyle(ApplicationWindow.getLabelStyle());
+        TextArea description = new TextArea();
+        description.setPromptText("Beschreibung");
+        
         Button submit = new Button("Speichern");
         submit.setOnAction((ActionEvent event) -> {
         	LOGGER.debug("Create expense");
         	Expense expense = new Expense();
         	expense.setName(expenseName.getText());
+        	expense.setDescription(description.getText());
         	expense.setCost(Float.parseFloat(expenseCost.getText()));
         	expense.setDate(new Timestamp(System.currentTimeMillis()));
         	expense.setCreated(new Date());
@@ -223,6 +230,7 @@ public class DisplayExpenses {
 				expense.save();
 				expenseName.setText("");
 				expenseCost.setText("");
+				description.setText("");
 			} catch (Exception e) {
 				ApplicationHelper.showError(e, "Speichen der Ausgabe fehlgeschlagen", "Die Ausgabe konnte nicht gespeichert werden. ");
 			}
@@ -233,8 +241,9 @@ public class DisplayExpenses {
         gridPane.add(lbCost, 0, 1);	// column 1 ; row 2
         gridPane.add(expenseCost, 1, 1);	// column 2 ; row 2
         gridPane.add(lbEuro, 2, 1);	// column 3 ; row 2
-        
-        gridPane.add(submit, 1, 2);
+        gridPane.add(lbInfo, 0, 2);
+        gridPane.add(description, 1, 2);
+        gridPane.add(submit, 1, 3);
         
 		return gridPane;
 	}

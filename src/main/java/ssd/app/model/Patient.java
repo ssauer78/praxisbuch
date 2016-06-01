@@ -30,6 +30,7 @@ public class Patient extends Item{
 	private String city = "";
 	private String country = "Germany";
 	private Image photo;
+	private Boolean removed = false;
 	
 	public Image getPhoto() {
 		return photo;
@@ -109,7 +110,12 @@ public class Patient extends Item{
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	
+	public Boolean getRemoved() {
+		return removed;
+	}
+	public void setRemoved(Boolean removed) {
+		this.removed = removed;
+	}
 	
 	public void save() throws SQLException{
 		Session session = DbHelper.getInstance().openSession();
@@ -124,11 +130,16 @@ public class Patient extends Item{
 		}
 	}
 	
+	/**
+	 * We don't really delete the patient. We only set the deleted flag. 
+	 * 
+	 * @throws SQLException
+	 */
 	public void delete() throws SQLException{
-		Session session = DbHelper.getInstance().openSession();
-		Transaction tx = null;
+		// ßSession session = DbHelper.getInstance().openSession();
+		// Transaction tx = null;
 		if(this.getId() != -1){
-			long id = this.getId();
+			/*long id = this.getId();
 			try{
 				tx = session.beginTransaction();
 				session.delete(this); 
@@ -139,7 +150,9 @@ public class Patient extends Item{
 				e.printStackTrace(); 
 			}finally {
 				session.close(); 
-			}
+			}*/
+			this.removed = true;
+			this.save();
 		}else{
 			LOGGER.warn("It was tried to delete a non existing patient.");
 		}
