@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory;
 import ssd.app.dao.DbHelper;
 import ssd.app.view.ApplicationWindow;
 
-public class PraxisBuch {
+public class DocBook {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(PraxisBuch.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DocBook.class);
 	
 	public static void main(String[] args){
 		DbHelper.getDbHelper().registerShutDownHook();
@@ -19,7 +19,7 @@ public class PraxisBuch {
 			
 			@Override
 			public void run() {
-				PraxisBuch.LOGGER.debug("Run application");
+				DocBook.LOGGER.debug("Run application");
 				
 				ApplicationWindow.launch(ApplicationWindow.class);
 			}
