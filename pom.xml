@@ -24,12 +24,12 @@
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.4</version>
 				<configuration>
-					<finalName>ContactsBook</finalName>
+					<finalName>DocBook</finalName>
 					<appendAssemblyId>false</appendAssemblyId>
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>ssd.app.Main</mainClass>
+							<mainClass>ssd.app.PraxisBuch</mainClass>
 						</manifest>
 						<manifestEntries>
 							<SplashScreen-Image>splash/image.png</SplashScreen-Image>
