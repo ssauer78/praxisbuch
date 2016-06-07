@@ -19,7 +19,8 @@ public class Appointment extends Item {
 	private double duration;
 	private Service service;
 	private String description;
-	
+	private Invoice invoice;
+
 	public Patient getPatient() {
 		return patient;
 	}
@@ -50,6 +51,12 @@ public class Appointment extends Item {
 	}
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	public Invoice getInvoice() {
+		return invoice;
+	}
+	public void setInvoice(Invoice invoice) {
+		this.invoice = invoice;
 	}
 	
 	public void save() throws SQLException{

@@ -29,5 +29,8 @@
         <property name="date" type="java.sql.Timestamp">
             <column name="DATE" />
         </property>
+        <many-to-one name="invoice" class="ssd.app.model.Invoice" fetch="join">
+            <column name="INVOICE" not-null="false" />
+        </many-to-one>
     </class>
 </hibernate-mapping>
