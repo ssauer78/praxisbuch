@@ -19,6 +19,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import ssd.app.model.Appointment;
@@ -61,7 +67,7 @@ public class ExportHelper {
 	 * @param appointments
 	 * @param path
 	 */
-	public static void writeToExcel(List<Appointment> appointments, List<Expense> expenses, String path){
+	private static void writeToExcel(List<Appointment> appointments, List<Expense> expenses, String path){
         // Using XSSF for xlsx format, for xls use HSSF
         Workbook workbook = new XSSFWorkbook();
 
@@ -160,4 +166,30 @@ public class ExportHelper {
 
         alert.showAndWait();
     }
+	
+	/**
+	 * Create a PDF invoice of the given appointments
+	 * 
+	 * @param appointments
+	 * @return
+	 */
+	public static Boolean createInvoice(List<Appointment> appointments){
+		Document document = new Document(PageSize.A4);
+		try {
+			PdfWriter.getInstance(document, new FileOutputStream("test.pdf"));
+			document.open();
+			for (Appointment appointment : appointments) {
+				document.add(new Paragraph(appointment.getService().getName() + ": " + appointment.getDate()));
+			}
+			document.close();
+			return true;
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
 }

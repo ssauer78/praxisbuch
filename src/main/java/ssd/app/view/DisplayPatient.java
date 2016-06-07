@@ -32,6 +32,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -55,6 +56,8 @@ import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 import ssd.app.helper.ApplicationHelper;
 import ssd.app.helper.AppointmentHelper;
+import ssd.app.helper.ExpensesHelper;
+import ssd.app.helper.ExportHelper;
 import ssd.app.helper.PatientsHelper;
 import ssd.app.model.Appointment;
 import ssd.app.model.Patient;
@@ -647,14 +650,14 @@ public class DisplayPatient {
         });
         
         List<Appointment> appointments = null;
-        ListView<Appointment> appointmentsView = null;
+        ListView<Appointment> appointmentsView = new ListView<Appointment>();
         if(showAppointments){ 
 	        appointments = AppointmentHelper.getAppointments(patient);
-	        appointmentsView = new ListView<Appointment>();
 	        ObservableList<Appointment> items = FXCollections.observableArrayList ();
 	        for (Appointment appointment : appointments) {
 	        	items.add(appointment);
 			}
+	        appointmentsView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 	        appointmentsView.setItems(items);
 	        appointmentsView.setCellFactory(new Callback<ListView<Appointment>, ListCell<Appointment>>(){
 	            @Override
@@ -681,6 +684,11 @@ public class DisplayPatient {
 	            }
 	        });
         }
+        Button printInvoice = new Button("Rechnung erstellen");
+        printInvoice.setOnAction((ActionEvent event) -> {	// if the button is triggered...
+        	boolean exported = ExportHelper.createInvoice(appointmentsView.getSelectionModel().getSelectedItems());
+        	// TODO: add success/failure popup
+        });
         
         if(showAppointments){ 
 	        Label appointmentHead = new Label("Termine");
@@ -690,7 +698,8 @@ public class DisplayPatient {
         gridPane.add(imageView, 2, 0, 1, 6);
         gridPane.add(tfFirstName, 0, 0);	gridPane.add(tfLastName, 1, 0);
         if(showAppointments){ 
-        	gridPane.add(appointmentsView, 3, 1, 1, (11 + dynamics.size()));
+        	gridPane.add(appointmentsView, 3, 1, 1, (10 + dynamics.size()));
+        	gridPane.add(printInvoice, 3, 11 + dynamics.size());
         }
         gridPane.add(birthdayPicker, 0, 1, 2, 1);
         gridPane.add(tfInurance, 0, 2, 2, 1);
