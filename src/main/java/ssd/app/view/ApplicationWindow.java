@@ -6,6 +6,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.chart.LineChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
@@ -244,8 +245,8 @@ public class ApplicationWindow extends Application{
     	        LOGGER.debug("show chart");
     	        Stage stage = (Stage) showCharts.getScene().getWindow();
     	        stage.setTitle("Verdienst anzeigen");
-//    	    	GridPane gp = DisplayExpenses.createExpensesPane();
-//    	    	borderPane.setCenter(gp);
+    	        LineChart<Number,Number> chart = DisplayExpenses.createIncomeChart();
+    	    	borderPane.setCenter(chart);
     	    }
     	});
     	

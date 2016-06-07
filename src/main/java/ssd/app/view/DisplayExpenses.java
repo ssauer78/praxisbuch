@@ -19,6 +19,9 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -246,5 +249,46 @@ public class DisplayExpenses {
         gridPane.add(submit, 1, 3);
         
 		return gridPane;
+	}
+
+	/**
+	 * https://docs.oracle.com/javafx/2/charts/line-chart.htm#CIHGBCFI
+	 * 
+	 * @return
+	 */
+	public static LineChart<Number, Number> createIncomeChart() {
+		GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(20, 0, 20, 20));
+        gridPane.setHgap(7); 
+        gridPane.setVgap(7);
+        
+        final NumberAxis xAxis = new NumberAxis();
+        final NumberAxis yAxis = new NumberAxis();
+        xAxis.setLabel("Monat.Jahr");
+        //creating the chart
+        final LineChart<Number,Number> lineChart = 
+                new LineChart<Number,Number>(xAxis,yAxis);
+                
+        lineChart.setTitle("Verdienst");
+        //defining a series
+        XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
+        series.setName("Verdienst");
+        //populating the series with data
+        series.getData().add(new XYChart.Data<Number, Number>(1, 23));
+        series.getData().add(new XYChart.Data<Number, Number>(2, 14));
+        series.getData().add(new XYChart.Data<Number, Number>(3, 15));
+        series.getData().add(new XYChart.Data<Number, Number>(4, 24));
+        series.getData().add(new XYChart.Data<Number, Number>(5, 34));
+        series.getData().add(new XYChart.Data<Number, Number>(6, 36));
+        series.getData().add(new XYChart.Data<Number, Number>(7, 22));
+        series.getData().add(new XYChart.Data<Number, Number>(8, 45));
+        series.getData().add(new XYChart.Data<Number, Number>(9, 43));
+        series.getData().add(new XYChart.Data<Number, Number>(10, 17));
+        series.getData().add(new XYChart.Data<Number, Number>(11, 29));
+        series.getData().add(new XYChart.Data<Number, Number>(12, 25));
+        
+        lineChart.getData().add(series);
+        
+        return lineChart;
 	}
 }
