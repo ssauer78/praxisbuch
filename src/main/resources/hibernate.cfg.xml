@@ -20,5 +20,6 @@
 		<mapping resource="hibernate/Appointment.hbm.xml" />
 		<mapping resource="hibernate/PatientFile.hbm.xml" />
 		<mapping resource="hibernate/Service.hbm.xml" />
+		<mapping resource="hibernate/Invoice.hbm.xml" />
 	</session-factory>
 </hibernate-configuration>
