@@ -51,10 +51,14 @@ public class PatientTest {
 		Assert.assertEquals(initialNumberOfPatients + 3, patients.size());
 		
 		Patient patient = PatientsHelper.getInstance().getPatient(idOfPatient2);
-		patient.delete();
+		patient.delete();	
 		
+		// delete should not delete a patient, but the getPatients method still gives one patient less! 
 		patients = PatientsHelper.getInstance().getPatients();
 		Assert.assertEquals(initialNumberOfPatients + 2, patients.size());
+		
+		List<Patient> deleted = PatientsHelper.getInstance().getDeletedPatients();
+		Assert.assertEquals(1, deleted.size());
 	}
 	
 	@Test
