@@ -46,6 +46,33 @@ public class PatientsHelper {
 		return patients;
 	}
 	
+	/**
+	 * In a way this is the same as getPatients. I could have added a parameter, 
+	 * but decided to separate the two. 
+	 * @return
+	 * @throws SQLException
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Patient> getDeletedPatients() throws SQLException{
+		List<Patient> patients = new ArrayList<Patient>();
+		Session session = DbHelper.getInstance().openSession();
+		Transaction tx = null;
+		try{
+			tx = session.beginTransaction();
+			Query query = session.createQuery("FROM Patient WHERE removed=true");
+			patients = (List<Patient>)query.list();
+			tx.commit();
+		}catch (HibernateException e) {
+			if(tx != null){
+				tx.rollback();
+			}
+			e.printStackTrace(); 
+		}finally {
+			session.close(); 
+		}
+		return patients;
+	}
+	
 	public Patient getPatient(Long patientId){
 		Patient patient = new Patient();
 		Session session = DbHelper.getInstance().openSession();
