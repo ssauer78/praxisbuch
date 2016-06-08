@@ -53,6 +53,7 @@ public class ApplicationWindow extends Application{
 	private Button closeApp;
 	private Button showCharts;
 	private Button export;
+	private Button homePage;
 	
 	private static final String LABEL_STYLE = "-fx-text-fill: black; -fx-font-size: 14;-fx-effect: dropshadow(one-pass-box, white, 5, 0, 1, 1);";
 	
@@ -106,6 +107,7 @@ public class ApplicationWindow extends Application{
     	expensesAdd = new Button();
     	showCharts = new Button();
     	export = new Button();
+    	homePage = new Button();
 
     	closeApp.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/Power.png"))));
     	closeApp.setTooltip(new Tooltip("PraxisBuch beenden"));
@@ -114,6 +116,23 @@ public class ApplicationWindow extends Application{
     	        LOGGER.debug("Closing application");
     	        Stage stage = (Stage) closeApp.getScene().getWindow();
     	        stage.close();
+    	    }
+    	});
+    	
+
+    	
+    	homePage.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/Home.png"))));
+    	homePage.setTooltip(new Tooltip("Startseite"));
+    	homePage.setOnAction(new EventHandler<ActionEvent>() {
+			@Override 
+			public void handle(ActionEvent e) {
+    	        LOGGER.debug("Home page");
+    	        Stage stage = (Stage) homePage.getScene().getWindow();
+    	        stage.setTitle("Startseite");
+    	        
+    	    	GridPane gp = createStartPane();
+    	        
+    	    	borderPane.setCenter(gp);
     	    }
     	});
     	 
@@ -263,7 +282,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
 
-    	tb.getItems().addAll(closeApp, patientList, patientAdd, patientSearch, appointmentList, 
+    	tb.getItems().addAll(closeApp, homePage, patientList, patientAdd, patientSearch, appointmentList, 
     			serviceList, serviceAdd, expensesList, expensesAdd, export, showCharts);
     	
     	return tb;
