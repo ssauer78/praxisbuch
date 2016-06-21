@@ -3,7 +3,6 @@ package ssd.app.view;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
@@ -14,15 +13,22 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
+import javafx.scene.effect.Reflection;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -54,6 +60,7 @@ public class ApplicationWindow extends Application{
 	private Button showCharts;
 	private Button export;
 	private Button homePage;
+	private Button helpPage;
 	
 	private static final String LABEL_STYLE = "-fx-text-fill: black; -fx-font-size: 14;-fx-effect: dropshadow(one-pass-box, white, 5, 0, 1, 1);";
 	
@@ -70,6 +77,8 @@ public class ApplicationWindow extends Application{
 	
     @Override
     public void start(Stage stage) throws Exception{
+    	DbHelper.getInstance();	// init the db right at the start
+    	
     	borderPane = new BorderPane();
     	GridPane gp = createStartPane();
         
@@ -92,6 +101,24 @@ public class ApplicationWindow extends Application{
     	DbHelper.getInstance().close();
 		super.stop();
 	}
+    
+    private Map<String, ImageView> getImages(){
+    	Map<String, ImageView> allImages = new HashMap<String, ImageView>();
+    	allImages.put("Power.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/Power.png"))));
+    	allImages.put("FavouriteAdd.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/FavouriteAdd.png"))));
+    	allImages.put("BarChart.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/BarChart.png"))));
+    	allImages.put("Home.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/Home.png"))));
+    	allImages.put("Users.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/Users.png"))));
+    	allImages.put("UsersAdd.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/UsersAdd.png"))));
+    	allImages.put("Search.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/Search.png"))));
+    	allImages.put("Books.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/Books.png"))));
+    	allImages.put("ServiceAdd.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/ServiceAdd.png"))));
+    	allImages.put("Calendar.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/Calendar.png"))));
+    	allImages.put("Favourite.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/Favourite.png"))));
+    	allImages.put("ExportToFile.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/ExportToFile.png"))));
+    	allImages.put("Help.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/Help.png"))));
+    	return allImages;
+    }
 
 
 	private ToolBar createToolBar(){
@@ -108,8 +135,11 @@ public class ApplicationWindow extends Application{
     	showCharts = new Button();
     	export = new Button();
     	homePage = new Button();
+    	helpPage = new Button();
+    	
+    	Map<String, ImageView> allImages = getImages();
 
-    	closeApp.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/Power.png"))));
+    	closeApp.setGraphic(allImages.get("Power.png"));
     	closeApp.setTooltip(new Tooltip("PraxisBuch beenden"));
     	closeApp.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override public void handle(ActionEvent e) {
@@ -119,9 +149,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-
-    	
-    	homePage.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/Home.png"))));
+    	homePage.setGraphic(allImages.get("Home.png"));
     	homePage.setTooltip(new Tooltip("Startseite"));
     	homePage.setOnAction(new EventHandler<ActionEvent>() {
 			@Override 
@@ -137,7 +165,7 @@ public class ApplicationWindow extends Application{
     	});
     	 
     	//Set the icon/graphic for the ToolBar Buttons.
-    	patientList.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/Users.png"))));
+    	patientList.setGraphic(allImages.get("Users.png"));
     	patientList.setTooltip(new Tooltip("Liste aller Patienten"));
     	patientList.setOnAction(new EventHandler<ActionEvent>() {
 			@Override 
@@ -150,7 +178,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-    	patientAdd.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/UsersAdd.png"))));
+    	patientAdd.setGraphic(allImages.get("UsersAdd.png"));
     	patientAdd.setTooltip(new Tooltip("Neuen Patienten erstellen"));
     	patientAdd.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override public void handle(ActionEvent e) {
@@ -163,7 +191,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-    	patientSearch.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/Search.png"))));
+    	patientSearch.setGraphic(allImages.get("Search.png"));
     	patientSearch.setTooltip(new Tooltip("Patienten suchen"));
     	patientSearch.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override public void handle(ActionEvent e) {
@@ -193,7 +221,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-    	serviceList.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/Books.png"))));
+    	serviceList.setGraphic(allImages.get("Books.png"));
     	serviceList.setTooltip(new Tooltip("Liste aller Leistungen"));
     	serviceList.setOnAction(new EventHandler<ActionEvent>() {
 			@Override 
@@ -206,7 +234,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-    	serviceAdd.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/ServiceAdd.png"))));
+    	serviceAdd.setGraphic(allImages.get("ServiceAdd.png"));
     	serviceAdd.setTooltip(new Tooltip("Neue Leistung erstellen"));
     	serviceAdd.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override public void handle(ActionEvent e) {
@@ -218,7 +246,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-    	appointmentList.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/Calendar.png"))));
+    	appointmentList.setGraphic(allImages.get("Calendar.png"));
     	appointmentList.setTooltip(new Tooltip("Termine anzeigen"));
     	appointmentList.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override public void handle(ActionEvent e) {
@@ -230,7 +258,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-    	expensesList.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/Favourite.png"))));
+    	expensesList.setGraphic(allImages.get("Favourite.png"));
     	expensesList.setTooltip(new Tooltip("Ausgaben anzeigen"));
     	expensesList.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override 
@@ -243,7 +271,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-    	expensesAdd.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/FavouriteAdd.png"))));
+    	expensesAdd.setGraphic(allImages.get("FavouriteAdd.png"));
     	expensesAdd.setTooltip(new Tooltip("Ausgabe hinzufügen"));
     	expensesAdd.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override 
@@ -256,7 +284,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-    	showCharts.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/BarChart.png"))));
+    	showCharts.setGraphic(allImages.get("BarChart.png"));
     	showCharts.setTooltip(new Tooltip("Verdienst anzeigen"));
     	showCharts.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override 
@@ -269,7 +297,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-    	export.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/icons/ExportToFile.png"))));
+    	export.setGraphic(allImages.get("ExportToFile.png"));
     	export.setTooltip(new Tooltip("Exportieren"));
     	export.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override 
@@ -281,9 +309,24 @@ public class ApplicationWindow extends Application{
     	    	borderPane.setCenter(gp);
     	    }
     	});
+    	
+    	helpPage.setGraphic(allImages.get("Help.png"));
+    	helpPage.setTooltip(new Tooltip("Hilfe"));
+    	helpPage.setOnAction(new EventHandler<ActionEvent>() {
+    	    @Override 
+    	    public void handle(ActionEvent e) {
+    	        LOGGER.debug("export");
+    	        Stage stage = (Stage) helpPage.getScene().getWindow();
+    	        stage.setTitle("Hilfe");
+    	    	GridPane gp = DisplayHelp.createHelpPane(stage, allImages);
+    	    	borderPane.setCenter(gp);
+    	    }
+    	});
+    	
+    	
 
     	tb.getItems().addAll(closeApp, homePage, patientList, patientAdd, patientSearch, appointmentList, 
-    			serviceList, serviceAdd, expensesList, expensesAdd, export, showCharts);
+    			serviceList, serviceAdd, expensesList, expensesAdd, export, showCharts, helpPage);
     	
     	return tb;
     }
@@ -294,9 +337,25 @@ public class ApplicationWindow extends Application{
         gridPane.setHgap(7); 
         gridPane.setVgap(7);
         
-        Label lbStart = new Label("Start screen - has to be styled");
-        GridPane.setHalignment(lbStart, HPos.CENTER);
-        gridPane.add(lbStart, 0, 0); 
+        Text t = new Text();
+        t.setX(70.0f);
+        t.setY(50.0f);
+        t.setCache(true);
+        t.setText("Praxisbuch - Aktuelle Termine");
+        t.setFill(Color.GREEN);
+        t.setFont(Font.font(null, FontWeight.BOLD, 22));
+         
+        Reflection r = new Reflection();
+        r.setFraction(0.4f);
+        t.setEffect(r);
+        
+        // TODO get appointments from 2 days before and one week after. Show them per day
+        Label lbStart = new Label("Keine Termine gefunden");
+        
+        gridPane.add(t, 0, 0);
+        
+        gridPane.add(lbStart, 0, 3);
+        
         return gridPane;
 	}
 }
