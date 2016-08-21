@@ -88,7 +88,7 @@
 		<dependency>
 		   <groupId>org.hibernate</groupId>
 		   <artifactId>hibernate-core</artifactId>
-		   <version>5.0.0.Beta1</version>
+		   <version>5.1.0.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
@@ -105,6 +105,11 @@
 		    <artifactId>itextpdf</artifactId>
 		    <version>5.5.9</version>
 		</dependency>
+	    <dependency>
+	      <groupId>com.google.apis</groupId>
+	      <artifactId>google-api-services-calendar</artifactId>
+	      <version>v3-rev194-1.22.0</version>
+	    </dependency>
 		<!-- <dependency>
         	<groupId>org.testfx</groupId>
         	<artifactId>testfx-core</artifactId>
