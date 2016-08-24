@@ -17,7 +17,7 @@ The data currently loaded is purely fake. Every occurrence of real person names 
 
 The database is [H2](http://www.h2database.com) at the moment. But might be changed at some point. 
 
-The icons are from: 
+The icons: 
 Ravenna Icon Set by Webdesigner Depot
 Design by Jack Cai
 http://www.webdesignerdepot.com
