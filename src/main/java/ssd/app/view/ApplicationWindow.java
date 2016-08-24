@@ -1,6 +1,7 @@
 package ssd.app.view;
 
 import javafx.application.Application;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -11,6 +12,7 @@ import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.effect.Reflection;
@@ -102,21 +104,21 @@ public class ApplicationWindow extends Application{
 		super.stop();
 	}
     
-    private Map<String, ImageView> getImages(){
-    	Map<String, ImageView> allImages = new HashMap<String, ImageView>();
-    	allImages.put("Power.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/Power.png"))));
-    	allImages.put("FavouriteAdd.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/FavouriteAdd.png"))));
-    	allImages.put("BarChart.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/BarChart.png"))));
-    	allImages.put("Home.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/Home.png"))));
-    	allImages.put("Users.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/Users.png"))));
-    	allImages.put("UsersAdd.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/UsersAdd.png"))));
-    	allImages.put("Search.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/Search.png"))));
-    	allImages.put("Books.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/Books.png"))));
-    	allImages.put("ServiceAdd.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/ServiceAdd.png"))));
-    	allImages.put("Calendar.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/Calendar.png"))));
-    	allImages.put("Favourite.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/Favourite.png"))));
-    	allImages.put("ExportToFile.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/ExportToFile.png"))));
-    	allImages.put("Help.png", new ImageView(new Image(getClass().getResourceAsStream("/icons/Help.png"))));
+    private Map<String, Image> getImages(){
+    	Map<String, Image> allImages = new HashMap<String, Image>();
+    	allImages.put("Power.png", new Image(getClass().getResourceAsStream("/icons/Power.png")));
+    	allImages.put("FavouriteAdd.png", new Image(getClass().getResourceAsStream("/icons/FavouriteAdd.png")));
+    	allImages.put("BarChart.png", new Image(getClass().getResourceAsStream("/icons/BarChart.png")));
+    	allImages.put("Home.png", new Image(getClass().getResourceAsStream("/icons/Home.png")));
+    	allImages.put("Users.png", new Image(getClass().getResourceAsStream("/icons/Users.png")));
+    	allImages.put("UsersAdd.png", new Image(getClass().getResourceAsStream("/icons/UsersAdd.png")));
+    	allImages.put("Search.png", new Image(getClass().getResourceAsStream("/icons/Search.png")));
+    	allImages.put("Books.png", new Image(getClass().getResourceAsStream("/icons/Books.png")));
+    	allImages.put("ServiceAdd.png", new Image(getClass().getResourceAsStream("/icons/ServiceAdd.png")));
+    	allImages.put("Calendar.png", new Image(getClass().getResourceAsStream("/icons/Calendar.png")));
+    	allImages.put("Favourite.png", new Image(getClass().getResourceAsStream("/icons/Favourite.png")));
+    	allImages.put("ExportToFile.png", new Image(getClass().getResourceAsStream("/icons/ExportToFile.png")));
+    	allImages.put("Help.png", new Image(getClass().getResourceAsStream("/icons/Help.png")));
     	return allImages;
     }
 
@@ -137,9 +139,9 @@ public class ApplicationWindow extends Application{
     	homePage = new Button();
     	helpPage = new Button();
     	
-    	Map<String, ImageView> allImages = getImages();
+    	Map<String, Image> allImages = getImages();
 
-    	closeApp.setGraphic(allImages.get("Power.png"));
+    	closeApp.setGraphic(new ImageView(allImages.get("Power.png")));
     	closeApp.setTooltip(new Tooltip("PraxisBuch beenden"));
     	closeApp.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override public void handle(ActionEvent e) {
@@ -149,7 +151,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-    	homePage.setGraphic(allImages.get("Home.png"));
+    	homePage.setGraphic(new ImageView(allImages.get("Home.png")));
     	homePage.setTooltip(new Tooltip("Startseite"));
     	homePage.setOnAction(new EventHandler<ActionEvent>() {
 			@Override 
@@ -165,7 +167,7 @@ public class ApplicationWindow extends Application{
     	});
     	 
     	//Set the icon/graphic for the ToolBar Buttons.
-    	patientList.setGraphic(allImages.get("Users.png"));
+    	patientList.setGraphic(new ImageView(allImages.get("Users.png")));
     	patientList.setTooltip(new Tooltip("Liste aller Patienten"));
     	patientList.setOnAction(new EventHandler<ActionEvent>() {
 			@Override 
@@ -173,12 +175,13 @@ public class ApplicationWindow extends Application{
     	        LOGGER.debug("Patient list");
     	        Stage stage = (Stage) patientList.getScene().getWindow();
     	        stage.setTitle("Patienten Liste");
-				TableView<Patient> tv = DisplayPatient.createPatientTableView();
-    	        borderPane.setCenter(tv);
+    	        
+    	        GridPane gp = DisplayPatient.createPatientTableViewWithFilter();
+    	        borderPane.setCenter(gp);
     	    }
     	});
     	
-    	patientAdd.setGraphic(allImages.get("UsersAdd.png"));
+    	patientAdd.setGraphic(new ImageView(allImages.get("UsersAdd.png")));
     	patientAdd.setTooltip(new Tooltip("Neuen Patienten erstellen"));
     	patientAdd.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override public void handle(ActionEvent e) {
@@ -191,7 +194,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-    	patientSearch.setGraphic(allImages.get("Search.png"));
+    	patientSearch.setGraphic(new ImageView(allImages.get("Search.png")));
     	patientSearch.setTooltip(new Tooltip("Patienten suchen"));
     	patientSearch.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override public void handle(ActionEvent e) {
@@ -221,7 +224,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-    	serviceList.setGraphic(allImages.get("Books.png"));
+    	serviceList.setGraphic(new ImageView(allImages.get("Books.png")));
     	serviceList.setTooltip(new Tooltip("Liste aller Leistungen"));
     	serviceList.setOnAction(new EventHandler<ActionEvent>() {
 			@Override 
@@ -234,7 +237,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-    	serviceAdd.setGraphic(allImages.get("ServiceAdd.png"));
+    	serviceAdd.setGraphic(new ImageView(allImages.get("ServiceAdd.png")));
     	serviceAdd.setTooltip(new Tooltip("Neue Leistung erstellen"));
     	serviceAdd.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override public void handle(ActionEvent e) {
@@ -246,7 +249,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-    	appointmentList.setGraphic(allImages.get("Calendar.png"));
+    	appointmentList.setGraphic(new ImageView(allImages.get("Calendar.png")));
     	appointmentList.setTooltip(new Tooltip("Termine anzeigen"));
     	appointmentList.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override public void handle(ActionEvent e) {
@@ -258,7 +261,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-    	expensesList.setGraphic(allImages.get("Favourite.png"));
+    	expensesList.setGraphic(new ImageView(allImages.get("Favourite.png")));
     	expensesList.setTooltip(new Tooltip("Ausgaben anzeigen"));
     	expensesList.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override 
@@ -271,7 +274,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-    	expensesAdd.setGraphic(allImages.get("FavouriteAdd.png"));
+    	expensesAdd.setGraphic(new ImageView(allImages.get("FavouriteAdd.png")));
     	expensesAdd.setTooltip(new Tooltip("Ausgabe hinzufügen"));
     	expensesAdd.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override 
@@ -284,7 +287,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-    	showCharts.setGraphic(allImages.get("BarChart.png"));
+    	showCharts.setGraphic(new ImageView(allImages.get("BarChart.png")));
     	showCharts.setTooltip(new Tooltip("Verdienst anzeigen"));
     	showCharts.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override 
@@ -297,7 +300,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-    	export.setGraphic(allImages.get("ExportToFile.png"));
+    	export.setGraphic(new ImageView(allImages.get("ExportToFile.png")));
     	export.setTooltip(new Tooltip("Exportieren"));
     	export.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override 
@@ -310,7 +313,7 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-    	helpPage.setGraphic(allImages.get("Help.png"));
+    	helpPage.setGraphic(new ImageView(allImages.get("Help.png")));
     	helpPage.setTooltip(new Tooltip("Hilfe"));
     	helpPage.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override 

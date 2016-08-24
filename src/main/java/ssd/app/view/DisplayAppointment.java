@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
 
 import ssd.app.helper.ApplicationHelper;
 import ssd.app.helper.AppointmentHelper;
+import ssd.app.helper.PatientsHelper;
 import ssd.app.helper.ServiceHelper;
 import ssd.app.model.Appointment;
 import ssd.app.model.Patient;
@@ -59,6 +60,11 @@ import ssd.app.model.Service;
 
 public class DisplayAppointment {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DisplayAppointment.class);
+	
+	protected static Stage createAddAppointmentDialog(Long patientId) {
+		Patient patient = PatientsHelper.getInstance().getPatient(patientId);
+		return createAddAppointmentDialog(patient);
+	}
 	
 	protected static Stage createAddAppointmentDialog(Patient patient) {
 		Stage dialog = new Stage();
