@@ -5,7 +5,6 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,11 +19,9 @@ import org.slf4j.LoggerFactory;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.SortedList;
 import ssd.app.dao.DbHelper;
 import ssd.app.model.Appointment;
 import ssd.app.model.Patient;
-import ssd.app.view.DisplayAppointment;
 
 public class AppointmentHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AppointmentHelper.class);

@@ -4,7 +4,6 @@ import jfxtras.scene.control.LocalDateTimeTextField;
 import jfxtras.scene.control.agenda.Agenda;
 import jfxtras.scene.control.agenda.Agenda.Appointment;
 import jfxtras.scene.control.agenda.Agenda.LocalDateTimeRange;
-import jfxtras.scene.control.agenda.AgendaSkinSwitcher;
 import jfxtras.scene.layout.GridPane;
 import ssd.app.helper.AppointmentHelper;
 
@@ -21,14 +20,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.Priority;
 import javafx.util.Callback;
 
 public class DisplayCalendar{
 	private static final Logger LOGGER = LoggerFactory.getLogger(DisplayCalendar.class);
+	
+	public static GridPane getCalendarView(){
+		Agenda agenda = DisplayCalendar.createAppointmentCalendarView();
+        Node node = DisplayCalendar.getControlPanel(agenda);
+        
+        GridPane grid = new GridPane();
+        grid.setVgap(2.0);
+        grid.setHgap(2.0);
+        grid.setPadding(new Insets(10, 10, 10, 10));
+        grid.add(node, 0, 0);
+        grid.add(agenda, 0, 1);
+        
+        return grid;
+	}
 	
 	protected static Agenda createAppointmentCalendarView(){
 		Agenda agenda = new Agenda();
@@ -99,21 +116,41 @@ public class DisplayCalendar{
         lGridPane.getColumnConstraints().addAll(lColumnConstraintsNeverGrow, lColumnConstraintsAlwaysGrow);
         int lRowIdx = 0;
  
-        // skin
+        /* skin
         {
             lGridPane.add(new Label("Skin"), new GridPane.C().row(lRowIdx).col(0).halignment(HPos.RIGHT));
             AgendaSkinSwitcher lAgendaSkinSwitcher = new AgendaSkinSwitcher(agenda);
             lGridPane.add(lAgendaSkinSwitcher, new GridPane.C().row(lRowIdx).col(1));
         }
         lRowIdx++;
- 
+ 		*/
         // displayed calendar
-        {
-            lGridPane.add(new Label("Display"), new GridPane.C().row(lRowIdx).col(0).halignment(HPos.RIGHT));
-            LocalDateTimeTextField lLocalDateTimeTextField = new LocalDateTimeTextField();
-            lGridPane.add(lLocalDateTimeTextField, new GridPane.C().row(lRowIdx).col(1));
-            lLocalDateTimeTextField.localDateTimeProperty().bindBidirectional(agenda.displayedLocalDateTime());
-        }
+        
+        Hyperlink last = new Hyperlink();
+        last.setGraphic(new ImageView(new Image("/icons/ArrowLeft.png")));
+        last.setOnAction(event -> {
+        	LocalDateTime now = agenda.displayedLocalDateTime().get();
+        	now = now.minusWeeks(1);
+            agenda.setDisplayedLocalDateTime(now);
+        });
+    	lGridPane.add(last, new GridPane.C().row(lRowIdx).col(0).halignment(HPos.RIGHT));
+        
+    	//lGridPane.add(new Label("Display"), new GridPane.C().row(lRowIdx).col(1));
+        
+        LocalDateTimeTextField lLocalDateTimeTextField = new LocalDateTimeTextField();
+        lLocalDateTimeTextField.setLocale(Locale.GERMAN);
+        lGridPane.add(lLocalDateTimeTextField, new GridPane.C().row(lRowIdx).col(1).margin(new Insets(5, 15, 5, 15)));
+        lLocalDateTimeTextField.localDateTimeProperty().bindBidirectional(agenda.displayedLocalDateTime());
+        
+        Hyperlink next = new Hyperlink();
+        next.setGraphic(new ImageView(new Image("/icons/ArrowRight.png")));
+        next.setOnAction(event -> {
+        	LocalDateTime now = agenda.displayedLocalDateTime().get();
+        	now = now.plusWeeks(1);
+            agenda.setDisplayedLocalDateTime(now);
+        });
+        lGridPane.add(next, new GridPane.C().row(lRowIdx).col(2));
+        
         lRowIdx++;
         // done
         return lGridPane;

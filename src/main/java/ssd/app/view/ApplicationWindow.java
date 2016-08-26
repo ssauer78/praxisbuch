@@ -2,12 +2,10 @@ package ssd.app.view;
 
 import javafx.application.Application;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.Button;
@@ -16,7 +14,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.effect.Reflection;
@@ -29,7 +26,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import jfxtras.scene.control.agenda.Agenda;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -263,7 +259,7 @@ public class ApplicationWindow extends Application{
     	        Stage stage = (Stage) appointmentList.getScene().getWindow();
     	        stage.setTitle("Termine");
     	        //TableView<Appointment> tv = DisplayAppointment.createAppointmentTableView();
-    	        GridPane tv = getCalendar();
+    	        GridPane tv = DisplayCalendar.getCalendarView();
     	    	borderPane.setCenter(tv);
     	    }
     	});
@@ -340,20 +336,6 @@ public class ApplicationWindow extends Application{
     	
     	return tb;
     }
-	
-	public GridPane getCalendar(){
-		Agenda agenda = DisplayCalendar.createAppointmentCalendarView();
-        Node node = DisplayCalendar.getControlPanel(agenda);
-        
-        GridPane grid = new GridPane();
-        grid.setVgap(2.0);
-        grid.setHgap(2.0);
-        
-        grid.add(agenda, 0, 0);
-        grid.add(node, 1, 0);
-        
-        return grid;
-	}
 	
 	public GridPane createStartPane(){
 		GridPane gridPane = new GridPane();
