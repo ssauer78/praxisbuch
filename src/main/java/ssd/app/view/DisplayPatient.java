@@ -18,6 +18,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -27,6 +29,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -48,6 +51,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -56,7 +61,6 @@ import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 import ssd.app.helper.ApplicationHelper;
 import ssd.app.helper.AppointmentHelper;
-import ssd.app.helper.ExpensesHelper;
 import ssd.app.helper.ExportHelper;
 import ssd.app.helper.PatientsHelper;
 import ssd.app.model.Appointment;
@@ -67,10 +71,10 @@ public class DisplayPatient {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DisplayPatient.class);
 
 	@SuppressWarnings("unchecked")
-	protected static TableView<Patient> createPatientTableView() {
+	protected static TableView<Patient> createPatientTableView(FilteredList<Patient> patients) {
 		TableView<Patient> patientTable = new TableView<Patient>();
 		patientTable.setEditable(true);
-
+		
 		TableColumn<Patient, Patient> patientAddAppointmentColumn = new TableColumn<>("");
 		patientAddAppointmentColumn.setMaxWidth(30);
 		patientAddAppointmentColumn.setSortable(false);
@@ -80,7 +84,8 @@ public class DisplayPatient {
 				return new ReadOnlyObjectWrapper<Patient>(features.getValue());
 			}
 		});
-        patientAddAppointmentColumn.setCellFactory(new Callback<TableColumn<Patient, Patient>, TableCell<Patient, Patient>>() {
+		
+		patientAddAppointmentColumn.setCellFactory(new Callback<TableColumn<Patient, Patient>, TableCell<Patient, Patient>>() {
         	@Override 
         	public TableCell<Patient, Patient> call(TableColumn<Patient, Patient> btnCol) {
         		return new TableCell<Patient, Patient>() {
@@ -98,9 +103,9 @@ public class DisplayPatient {
         			
         			@Override 
         			public void updateItem(final Patient patient, boolean empty) {
-        				super.updateItem(patient, empty);
 
         				if(empty){	// don't show the button if there is no patient
+        					setGraphic( null );
         					return;
         				}
         				setGraphic(bAddAppointment);
@@ -112,6 +117,8 @@ public class DisplayPatient {
         						dialog.show();
         					}
         				});
+
+        				super.updateItem(patient, empty);
         			}
         		};
         	}
@@ -147,6 +154,7 @@ public class DisplayPatient {
         				super.updateItem(patient, empty);
 
         				if(empty){	// don't show the button if there is no patient
+        					setGraphic( null );
         					return;
         				}
         				
@@ -200,6 +208,7 @@ public class DisplayPatient {
         				super.updateItem(patient, empty);
 
         				if(empty){	// don't show the button if there is no patient
+        					setGraphic( null );
         					return;
         				}
         				
@@ -218,8 +227,8 @@ public class DisplayPatient {
     									patient.delete();
     									Stage stage = (Stage) ApplicationWindow.getScene().getWindow();
     					    	        stage.setTitle("Patienten");
-    									TableView<Patient> tv = createPatientTableView();
-    					    	        ApplicationWindow.getBorderPane().setCenter(tv);
+    					    	        GridPane gp = DisplayPatient.createPatientTableViewWithFilter();
+    					    	        ApplicationWindow.getBorderPane().setCenter(gp);
         							}
 								} catch (SQLException e) {
 									ApplicationHelper.showError(e, "Löschen des Patienten fehlgeschlagen", 
@@ -277,21 +286,62 @@ public class DisplayPatient {
 			}
 		});
         
-        patientTable.getColumns().addAll(patientAddAppointmentColumn, patientEditColumn, patientDeleteColumn, patientNameColumn, patientGivebNameColumn, 
+        patientTable.getColumns().addAll(patientAddAppointmentColumn, patientEditColumn, 
+        		patientDeleteColumn, patientNameColumn, patientGivebNameColumn, 
         		patientInsuranceColumn, patientPhoneColumn, patientEMailColumn, dynamics);
         
-        List<Patient> patients = new ArrayList<Patient>();
-		try {
-			patients = PatientsHelper.getInstance().getPatients();
-		} catch (SQLException e1) {
-			// ignore => just show nothing
-		}
-		if(patients.size() > 0){
-	        ObservableList<Patient> data = FXCollections.observableList(patients);
-	        patientTable.setItems(data);
+        SortedList<Patient> sortedPatients = new SortedList<>(patients);
+		if(sortedPatients.size() > 0){
+	        sortedPatients.comparatorProperty().bind(patientTable.comparatorProperty());
+	        patientTable.setItems(sortedPatients);
 		}
 		
 		return patientTable;
+	}
+	
+	protected static GridPane createPatientTableViewWithFilter(){
+		GridPane full = new GridPane();
+
+		FilteredList<Patient> patients = PatientsHelper.initializePatientList("");
+        TextField filterField = new TextField();
+        filterField.setTooltip(new Tooltip("Patientenliste filtern"));
+        filterField.setPromptText("Filter");
+        filterField.textProperty().addListener((observable, oldValue, newValue) -> {
+        	patients.setPredicate(patient -> {
+                // If filter text is empty, display all persons.
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                // Compare first name and last name of every person with filter text.
+                String lowerCaseFilter = newValue.toLowerCase();
+                if (patient.getName().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches first name.
+                } else if (patient.getGivenName().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches last name.
+                } else if (patient.getInsurance().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches last name.
+                } else if (patient.getEmail().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches last name.
+                } else if (patient.getAddress().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches last name.
+                } else if (patient.getZipcode().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches last name.
+                } else if (patient.getCity() != null && patient.getCity().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches last name.
+                } else if (patient.getCountry() != null && patient.getCountry().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches last name.
+                }
+                return false; // Does not match.
+            });
+        });
+		TableView<Patient> tv = DisplayPatient.createPatientTableView(patients);
+		
+		GridPane.setHgrow(tv, Priority.ALWAYS);
+		GridPane.setVgrow(tv, Priority.ALWAYS);
+		full.add(filterField, 0, 0);
+		full.add(tv, 0, 1);
+		return full;
 	}
 	
 	/**
@@ -416,9 +466,10 @@ public class DisplayPatient {
 				// patient was saved -> go back to patient list
 				Stage stage = (Stage) submit.getScene().getWindow();
     	        stage.setTitle("Patienten Liste");
-				TableView<Patient> tv = DisplayPatient.createPatientTableView();
+    	        GridPane gp = DisplayPatient.createPatientTableViewWithFilter();
+				// TableView<Patient> tv = DisplayPatient.createPatientTableView(null);
 				BorderPane borderPane = ApplicationWindow.getBorderPane();
-    	        borderPane.setCenter(tv);
+    	        borderPane.setCenter(gp);
 			} catch (Exception e) {
 				LOGGER.debug(e.getMessage());
 				ApplicationHelper.showError(e, "Speichen des Patienten fehlgeschlagen", "Der Patient konnte nicht gespeichert werden. ");
@@ -593,8 +644,9 @@ public class DisplayPatient {
 					dialog.close();
 				}
 				stage.setTitle("Patienten Liste");
-				TableView<Patient> tv = DisplayPatient.createPatientTableView();
-    	        ApplicationWindow.getBorderPane().setCenter(tv);
+				// we have to load the table view again in case something was changed... otherwise the display might be wrong
+				GridPane gp = DisplayPatient.createPatientTableViewWithFilter();
+    	        ApplicationWindow.getBorderPane().setCenter(gp);
 			} catch (Exception e) {
 				LOGGER.debug(e.getMessage());
 				ApplicationHelper.showError(e, "Speichen des Patienten fehlgeschlagen", "Der Patient konnte nicht gespeichert werden. ");

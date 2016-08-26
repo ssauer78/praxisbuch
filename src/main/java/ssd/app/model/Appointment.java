@@ -2,6 +2,8 @@ package ssd.app.model;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -72,6 +74,11 @@ public class Appointment extends Item {
 		}
 	}
 	
+	/**
+	 * Really delete the appointment
+	 * 
+	 * @throws SQLException
+	 */
 	public void delete() throws SQLException{
 		Session session = DbHelper.getInstance().openSession();
 		Transaction tx = null;
@@ -96,7 +103,11 @@ public class Appointment extends Item {
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		sb.append(patient.toString() + ":" + date.toString());
+		// sb.append(patient.toString() + ":" + date.toString());
+		String s = new SimpleDateFormat("EEEE dd.MMMM yyyy HH:mm", Locale.GERMAN).format(date);
+		sb.append(s);
+		sb.append(" ");
+		sb.append(patient.toString());
 		return sb.toString();
 	}
 }

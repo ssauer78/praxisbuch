@@ -11,6 +11,10 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.scene.image.Image;
 import ssd.app.dao.DbHelper;
 import ssd.app.model.Patient;
 
@@ -25,14 +29,44 @@ public class PatientsHelper {
 	private PatientsHelper(){
 	}
 	
+	/**
+	 * Get a filteredlist object with all data initially. 
+	 * @param filter
+	 * @return
+	 */
+	public static FilteredList<Patient> initializePatientList(String filter){
+		List<Patient> patients = new ArrayList<Patient>();
+		try {
+			patients = PatientsHelper.getInstance().getPatients(filter);
+		} catch (SQLException e1) {
+			
+		}
+		ObservableList<Patient> data = FXCollections.observableList(patients);
+		FilteredList<Patient> filteredData = new FilteredList<>(data, p -> true);
+		return filteredData;
+	}
+	
 	@SuppressWarnings("unchecked")
-	public List<Patient> getPatients() throws SQLException{
+	public List<Patient> getPatients(String filter) throws SQLException{
 		List<Patient> patients = new ArrayList<Patient>();
 		Session session = DbHelper.getInstance().openSession();
 		Transaction tx = null;
 		try{
 			tx = session.beginTransaction();
-			Query query = session.createQuery("FROM Patient WHERE removed=false");
+			String querystring = "FROM Patient WHERE removed=false";
+			if(filter != "" && filter != null){
+				querystring += " AND (";
+				querystring += "LOWER(name) LIKE LOWER('%" + filter + "%') OR ";
+				querystring += "LOWER(givenName) LIKE LOWER('%" + filter + "%') OR ";
+				querystring += "LOWER(insurance) LIKE LOWER('%" + filter + "%') OR ";
+				querystring += "LOWER(email) LIKE LOWER('%" + filter + "%') OR ";
+				querystring += "LOWER(address) LIKE LOWER('%" + filter + "%') OR ";
+				querystring += "LOWER(zipcode) LIKE LOWER('%" + filter + "%') OR ";
+				querystring += "LOWER(city) LIKE LOWER('%" + filter + "%') OR ";
+				querystring += "LOWER(country) LIKE LOWER('%" + filter + "%')";
+				querystring += ")";
+			}
+			Query query = session.createQuery(querystring);
 			patients = (List<Patient>)query.list();
 			tx.commit();
 		}catch (HibernateException e) {
@@ -44,6 +78,10 @@ public class PatientsHelper {
 			session.close(); 
 		}
 		return patients;
+	}
+	
+	public List<Patient> getPatients() throws SQLException{
+		return getPatients("");
 	}
 	
 	/**

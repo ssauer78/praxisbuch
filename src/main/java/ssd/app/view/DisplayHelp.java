@@ -1,7 +1,5 @@
 package ssd.app.view;
 
-import java.io.File;
-import java.util.Calendar;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -22,7 +20,7 @@ import javafx.stage.Stage;
 public class DisplayHelp {
 private static final Logger log = LoggerFactory.getLogger(DisplayHelp.class);
 	
-	protected static GridPane createHelpPane(Stage stage, Map<String, ImageView> allImages) {
+	protected static GridPane createHelpPane(Stage stage, Map<String, Image> allImages) {
 		log.debug("Creating help pane...");
 		GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(20, 10, 20, 20));
@@ -41,11 +39,16 @@ private static final Logger log = LoggerFactory.getLogger(DisplayHelp.class);
         r.setFraction(0.4f);
         t.setEffect(r);
         
-        Label lbStart = new Label("Keine Termine gefunden");
+        Label lbHome = new Label("Hier sehen Sie die letzen und nächsten Termine. ");
+        Label lbPatients = new Label("Zeigt eine List mit Patienten in einer Tabelle. In der ersten Spalte ist es möglich einen neuen Termin anzulegen, den Patienten zu editieren oder zu löschen. ");
         
-        gridPane.add(t, 0, 0);
+        gridPane.add(t, 0, 0, 2, 1);
         
-        gridPane.add(allImages.get("FavouriteAdd.png"), 0, 3);
+        gridPane.add(new ImageView(allImages.get("Home.png")), 0, 3);
+        gridPane.add(lbHome, 1, 3);
+        
+        gridPane.add(new ImageView(allImages.get("Users.png")), 0, 4);
+        gridPane.add(lbPatients, 1, 4);
         
         return gridPane;
 	}

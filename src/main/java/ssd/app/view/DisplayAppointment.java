@@ -198,7 +198,7 @@ public class DisplayAppointment {
         Label lbDuration = new Label("Dauer: ");
         lbDuration.setStyle(ApplicationWindow.getLabelStyle());
         GridPane.setHalignment(lbService, HPos.LEFT);
-        TextField appointmentDuration = new TextField ();
+        TextField appointmentDuration = new TextField ("1");
         appointmentDuration.setPrefColumnCount(3);
         appointmentDuration.textProperty().addListener(new ChangeListener<String>(){
         	@Override
@@ -259,8 +259,6 @@ public class DisplayAppointment {
 		return dialog;
 	}
 	
-	
-
 	@SuppressWarnings("unchecked")
 	protected static TableView<Appointment> createAppointmentTableView(){
 		TableView<Appointment> appointmentTable = new TableView<Appointment>();

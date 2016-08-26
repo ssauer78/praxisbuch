@@ -47,6 +47,7 @@ public class PatientTest {
 	
 	@Test
 	public void testDelete() throws SQLException{
+		List<Patient> deleted_init = PatientsHelper.getInstance().getDeletedPatients();
 		List<Patient> patients = PatientsHelper.getInstance().getPatients();
 		Assert.assertEquals(initialNumberOfPatients + 3, patients.size());
 		
@@ -58,7 +59,7 @@ public class PatientTest {
 		Assert.assertEquals(initialNumberOfPatients + 2, patients.size());
 		
 		List<Patient> deleted = PatientsHelper.getInstance().getDeletedPatients();
-		Assert.assertEquals(1, deleted.size());
+		Assert.assertEquals(deleted_init.size() + 1, deleted.size());
 	}
 	
 	@Test

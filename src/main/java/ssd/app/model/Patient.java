@@ -5,7 +5,6 @@ import java.sql.Timestamp;
 
 import javafx.scene.image.Image;
 
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;
@@ -161,16 +160,16 @@ public class Patient extends Item{
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		if(this.getId() == -1){
-			sb.append("[No ID] ");
-		}else{
-			sb.append("[").append(this.getId()).append("] ");
-		}
-		
 		if(name == null){
 			sb.append("no name");
 		}else{
 			sb.append(givenName + " " + name);
+		}
+
+		if(this.getId() == -1){
+			sb.append("[No ID] ");
+		}else{
+			sb.append("[").append(this.getId()).append("] ");
 		}
 		
 		return sb.toString();
