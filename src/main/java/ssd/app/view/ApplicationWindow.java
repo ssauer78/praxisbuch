@@ -1,15 +1,19 @@
 package ssd.app.view;
 
 import javafx.application.Application;
+import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -25,6 +29,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import jfxtras.scene.control.agenda.Agenda;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -37,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ssd.app.dao.DbHelper;
+import ssd.app.helper.AppointmentHelper;
 import ssd.app.helper.PatientsHelper;
 import ssd.app.model.Appointment;
 import ssd.app.model.Expense;
@@ -256,7 +262,8 @@ public class ApplicationWindow extends Application{
     	        LOGGER.debug("Appointment list");
     	        Stage stage = (Stage) appointmentList.getScene().getWindow();
     	        stage.setTitle("Termine");
-    	        TableView<Appointment> tv = DisplayAppointment.createAppointmentTableView();
+    	        //TableView<Appointment> tv = DisplayAppointment.createAppointmentTableView();
+    	        GridPane tv = getCalendar();
     	    	borderPane.setCenter(tv);
     	    }
     	});
@@ -334,6 +341,20 @@ public class ApplicationWindow extends Application{
     	return tb;
     }
 	
+	public GridPane getCalendar(){
+		Agenda agenda = DisplayCalendar.createAppointmentCalendarView();
+        Node node = DisplayCalendar.getControlPanel(agenda);
+        
+        GridPane grid = new GridPane();
+        grid.setVgap(2.0);
+        grid.setHgap(2.0);
+        
+        grid.add(agenda, 0, 0);
+        grid.add(node, 1, 0);
+        
+        return grid;
+	}
+	
 	public GridPane createStartPane(){
 		GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(20, 10, 20, 20));
@@ -353,10 +374,35 @@ public class ApplicationWindow extends Application{
         t.setEffect(r);
         
         // TODO get appointments from 2 days before and one week after. Show them per day
-        Label lbStart = new Label("Keine Termine gefunden");
+        ObservableList<Appointment> prevAppointments = AppointmentHelper.getLatestAppointments(10);
+        ObservableList<Appointment> nextAppointments = AppointmentHelper.getNextAppointments(10);
+        Label lbStart = new Label("");
+        if ((prevAppointments == null || prevAppointments.size() <= 0) && (nextAppointments == null || nextAppointments.size() <= 0)){
+        	lbStart.setText("Keine Termine gefunden");
+        }
         
+        ListView<Appointment> prevList = new ListView<Appointment>();
+        prevList.setItems(prevAppointments);
+        LOGGER.debug("prev appointments: " + prevAppointments.size());
+        ListView<Appointment> nextList = new ListView<Appointment>();
+        LOGGER.debug("next appointments: " + nextAppointments.size());
+        nextList.setItems(nextAppointments);
         gridPane.add(t, 0, 0);
         
+        Label last = new Label("Letzten Termine");
+        last.setAlignment(Pos.CENTER_RIGHT);
+        last.setFont(Font.font(null, FontWeight.BOLD, 18));
+        gridPane.add(last, 0, 1);
+        Label next = new Label("Nächsten Termine");
+        next.setFont(Font.font(null, FontWeight.BOLD, 18));
+        gridPane.add(next, 1, 1);
+        if (prevAppointments != null && prevAppointments.size() > 0){
+        	gridPane.add(prevList, 0, 2);
+        }
+        if (nextAppointments != null && nextAppointments.size() > 0){
+        	gridPane.add(nextList, 1, 2);
+        }
+
         gridPane.add(lbStart, 0, 3);
         
         return gridPane;
