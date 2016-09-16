@@ -13,6 +13,7 @@ import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
@@ -25,10 +26,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -195,7 +200,7 @@ public class ApplicationWindow extends Application{
     	    	borderPane.setCenter(sp);
     	    }
     	});
-    	
+    	/*
     	patientSearch.setGraphic(new ImageView(allImages.get("Search.png")));
     	patientSearch.setTooltip(new Tooltip("Patienten suchen"));
     	patientSearch.setOnAction(new EventHandler<ActionEvent>() {
@@ -225,7 +230,7 @@ public class ApplicationWindow extends Application{
             	});
     	    }
     	});
-    	
+    	*/
     	serviceList.setGraphic(new ImageView(allImages.get("Books.png")));
     	serviceList.setTooltip(new Tooltip("Liste aller Leistungen"));
     	serviceList.setOnAction(new EventHandler<ActionEvent>() {
@@ -258,7 +263,7 @@ public class ApplicationWindow extends Application{
     	        LOGGER.debug("Appointment list");
     	        Stage stage = (Stage) appointmentList.getScene().getWindow();
     	        stage.setTitle("Termine");
-    	        //TableView<Appointment> tv = DisplayAppointment.createAppointmentTableView();
+    	        // TableView<Appointment> tv = DisplayAppointment.createAppointmentTableView();
     	        GridPane tv = DisplayCalendar.getCalendarView();
     	    	borderPane.setCenter(tv);
     	    }
@@ -324,14 +329,14 @@ public class ApplicationWindow extends Application{
     	        LOGGER.debug("export");
     	        Stage stage = (Stage) helpPage.getScene().getWindow();
     	        stage.setTitle("Hilfe");
-    	    	GridPane gp = DisplayHelp.createHelpPane(stage, allImages);
-    	    	borderPane.setCenter(gp);
+    	    	TabPane tp = DisplayHelp.createHelpPane(stage, allImages);
+    	    	borderPane.setCenter(tp);
     	    }
     	});
     	
     	
 
-    	tb.getItems().addAll(closeApp, homePage, patientList, patientAdd, patientSearch, appointmentList, 
+    	tb.getItems().addAll(closeApp, homePage, patientList, patientAdd, appointmentList, 
     			serviceList, serviceAdd, expensesList, expensesAdd, export, showCharts, helpPage);
     	
     	return tb;
@@ -343,49 +348,44 @@ public class ApplicationWindow extends Application{
         gridPane.setHgap(7); 
         gridPane.setVgap(7);
         
-        Text t = new Text();
-        t.setX(70.0f);
-        t.setY(50.0f);
-        t.setCache(true);
-        t.setText("Praxisbuch - Aktuelle Termine");
-        t.setFill(Color.GREEN);
-        t.setFont(Font.font(null, FontWeight.BOLD, 22));
+        Text header = new Text();
+        header.setX(70.0f);
+        header.setY(50.0f);
+        header.setCache(true);
+        header.setText("Praxisbuch - Heutige Termine");
+        header.setFill(Color.GREEN);
+        header.setFont(Font.font(null, FontWeight.BOLD, 20));
          
-        Reflection r = new Reflection();
+        /*Reflection r = new Reflection();
         r.setFraction(0.4f);
-        t.setEffect(r);
-        
+        header.setEffect(r);*/
+        header.setTextAlignment(TextAlignment.CENTER);
         // TODO get appointments from 2 days before and one week after. Show them per day
-        ObservableList<Appointment> prevAppointments = AppointmentHelper.getLatestAppointments(10);
-        ObservableList<Appointment> nextAppointments = AppointmentHelper.getNextAppointments(10);
-        Label lbStart = new Label("");
-        if ((prevAppointments == null || prevAppointments.size() <= 0) && (nextAppointments == null || nextAppointments.size() <= 0)){
-        	lbStart.setText("Keine Termine gefunden");
-        }
+        List<Appointment> appointments = new ArrayList<Appointment>();
+		try {
+			appointments = AppointmentHelper.getInstance().getAppointments(new Date());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
         
-        ListView<Appointment> prevList = new ListView<Appointment>();
-        prevList.setItems(prevAppointments);
-        LOGGER.debug("prev appointments: " + prevAppointments.size());
-        ListView<Appointment> nextList = new ListView<Appointment>();
-        LOGGER.debug("next appointments: " + nextAppointments.size());
-        nextList.setItems(nextAppointments);
-        gridPane.add(t, 0, 0);
+        gridPane.add(header, 0, 0);
         
-        Label last = new Label("Letzten Termine");
-        last.setAlignment(Pos.CENTER_RIGHT);
-        last.setFont(Font.font(null, FontWeight.BOLD, 18));
-        gridPane.add(last, 0, 1);
-        Label next = new Label("Nächsten Termine");
-        next.setFont(Font.font(null, FontWeight.BOLD, 18));
-        gridPane.add(next, 1, 1);
-        if (prevAppointments != null && prevAppointments.size() > 0){
-        	gridPane.add(prevList, 0, 2);
+        if (appointments == null || appointments.size() <= 0){
+        	gridPane.add(new Label("Keine Termine gefunden"), 0, 2);
+        }else{
+        	int row = 3;
+        	for (Appointment appointment : appointments) {
+        		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+        		StringBuilder sb = new StringBuilder();
+        		sb.append(sdf.format(appointment.getDate()));
+        		sb.append(" ");
+        		sb.append(appointment.getPatient().toString());
+        		
+				gridPane.add(new Label(sb.toString()), 0, row++);
+			}
         }
-        if (nextAppointments != null && nextAppointments.size() > 0){
-        	gridPane.add(nextList, 1, 2);
-        }
-
-        gridPane.add(lbStart, 0, 3);
         
         return gridPane;
 	}
