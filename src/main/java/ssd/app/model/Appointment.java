@@ -3,6 +3,7 @@ package ssd.app.model;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 import org.hibernate.HibernateException;
@@ -11,9 +12,10 @@ import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jfxtras.scene.control.agenda.Agenda.AppointmentImpl;
 import ssd.app.dao.DbHelper;
 
-public class Appointment extends Item {
+public class Appointment extends AppointmentImpl {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Appointment.class);
 	
 	private Patient patient;
@@ -22,6 +24,29 @@ public class Appointment extends Item {
 	private Service service;
 	private String description;
 	private Invoice invoice;
+	
+	private long id = -1;
+	private Date created;
+	private Date modified;
+	
+	public long getId() {
+		return id;
+	}
+	public void setId(long id) {
+		this.id = id;
+	}
+	public Date getCreated() {
+		return created;
+	}
+	public void setCreated(Date created) {
+		this.created = created;
+	}
+	public Date getModified() {
+		return modified;
+	}
+	public void setModified(Date modified) {
+		this.modified = modified;
+	}
 
 	public Patient getPatient() {
 		return patient;

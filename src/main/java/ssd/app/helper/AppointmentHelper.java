@@ -5,7 +5,10 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -64,6 +67,47 @@ public class AppointmentHelper {
 			if(query == null){
 				query = session.createQuery("FROM Appointment");
 			}
+			appointments = (List<Appointment>)query.list(); 
+			tx.commit();
+		}catch (HibernateException e) {
+			if(tx != null){
+				tx.rollback();
+			}
+			e.printStackTrace(); 
+		}finally {
+			session.close(); 
+		}
+		return appointments;
+	}
+	
+	/**
+	 * Get all appointments of a specific day. 
+	 * 
+	 * From the given date a start and end Timestamp are created. The end is actually the beginning of the next
+	 * day, but that should be good enough for the purpose. 
+	 * 
+	 * @param date	The date object which is used to get the day.
+	 * @return	Found appointments
+	 * @throws SQLException	
+	 * @throws ParseException
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Appointment> getAppointments(Date date) throws SQLException, ParseException{
+		List<Appointment> appointments = new ArrayList<Appointment>();
+		Session session = DbHelper.getInstance().openSession();
+		Transaction tx = null;
+		
+		Instant day = date.toInstant();
+		ZoneId zid = ZoneId.of("Europe/Berlin");	// TODO get the zone from somewhere else...
+		ZonedDateTime zdt = ZonedDateTime.ofInstant(day, zid);
+		ZonedDateTime _start = zdt.toLocalDate().atStartOfDay(zid);
+		ZonedDateTime _end = _start.plusDays(1);	// beginning of next day
+		Timestamp tstart = new Timestamp(_start.toInstant().getEpochSecond() * 1000L);
+		Timestamp tend = new Timestamp(_end.toInstant().getEpochSecond() * 1000L);
+		try{
+			tx = session.beginTransaction();
+			Query query = null;
+			query = session.createQuery("FROM Appointment WHERE date BETWEEN :start AND :end").setParameter("start", tstart).setParameter("end", tend);
 			appointments = (List<Appointment>)query.list(); 
 			tx.commit();
 		}catch (HibernateException e) {
