@@ -29,7 +29,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -51,7 +50,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -164,11 +162,10 @@ public class DisplayPatient {
 							@Override
 							public void handle(ActionEvent event) {
 								LOGGER.debug("Handle edit button click");
-								// Stage dialog = DisplayPatient.createEditPatientDialog(patient);
+								Stage stage = (Stage)ApplicationWindow.getScene().getWindow();
 								// dialog.show();
-								
-								Stage dialog = DisplayPatient.getEditPatientDialog(patient);
-								dialog.show();
+								ScrollPane sp = DisplayPatient.createEditPatientPane(patient, stage, null, true); // open the patient edit window in the main app
+				    	        ApplicationWindow.getBorderPane().setCenter(sp);
 							}
         					
 						});
@@ -721,7 +718,7 @@ public class DisplayPatient {
 	                        if (a != null) {
 	                        	DateFormat outputFormatter = new SimpleDateFormat("dd.MM.yyyy");
 	                        	String output = outputFormatter.format(a.getDate());	
-	                            setText(output + " - " + a.getService().getName() + " - " + a.getDuration() + " min");
+	                            setText(output + " - " + a.getService().getName() + " - " + a.getDuration());
 	                        }
 	                    }
 	                };
@@ -750,8 +747,8 @@ public class DisplayPatient {
         gridPane.add(imageView, 2, 0, 1, 6);
         gridPane.add(tfFirstName, 0, 0);	gridPane.add(tfLastName, 1, 0);
         if(showAppointments){ 
-        	gridPane.add(appointmentsView, 3, 1, 1, (10 + dynamics.size()));
-        	gridPane.add(printInvoice, 3, 11 + dynamics.size());
+        	gridPane.add(appointmentsView, 3, 1, 1, (11 + dynamics.size()));
+        	gridPane.add(printInvoice, 3, 12 + dynamics.size());
         }
         gridPane.add(birthdayPicker, 0, 1, 2, 1);
         gridPane.add(tfInurance, 0, 2, 2, 1);

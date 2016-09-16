@@ -166,11 +166,11 @@ public class Patient extends Item{
 			sb.append(givenName + " " + name);
 		}
 
-		if(this.getId() == -1){
+		/*if(this.getId() == -1){
 			sb.append("[No ID] ");
 		}else{
 			sb.append("[").append(this.getId()).append("] ");
-		}
+		}*/
 		
 		return sb.toString();
 	}
