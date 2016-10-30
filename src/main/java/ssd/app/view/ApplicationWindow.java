@@ -60,6 +60,7 @@ public class ApplicationWindow extends Application{
 	private Button serviceList;
 	private Button serviceAdd;
 	private Button appointmentList;
+	private Button appointmentCalendar;
 	private Button expensesList;
 	private Button expensesAdd;
 	private Button patientList;
@@ -121,6 +122,7 @@ public class ApplicationWindow extends Application{
     	allImages.put("UsersAdd.png", new Image(getClass().getResourceAsStream("/icons/UsersAdd.png")));
     	allImages.put("Search.png", new Image(getClass().getResourceAsStream("/icons/Search.png")));
     	allImages.put("Books.png", new Image(getClass().getResourceAsStream("/icons/Books.png")));
+    	allImages.put("Paste.png", new Image(getClass().getResourceAsStream("/icons/Paste.png")));
     	allImages.put("ServiceAdd.png", new Image(getClass().getResourceAsStream("/icons/ServiceAdd.png")));
     	allImages.put("Calendar.png", new Image(getClass().getResourceAsStream("/icons/Calendar.png")));
     	allImages.put("Favourite.png", new Image(getClass().getResourceAsStream("/icons/Favourite.png")));
@@ -138,6 +140,7 @@ public class ApplicationWindow extends Application{
     	patientSearch  = new Button();
     	serviceList = new Button();
     	serviceAdd = new Button();
+    	appointmentCalendar = new Button();
     	appointmentList = new Button();
     	expensesList = new Button();
     	expensesAdd = new Button();
@@ -256,15 +259,28 @@ public class ApplicationWindow extends Application{
     	    }
     	});
     	
-    	appointmentList.setGraphic(new ImageView(allImages.get("Calendar.png")));
+    	appointmentCalendar.setGraphic(new ImageView(allImages.get("Calendar.png")));
+    	appointmentCalendar.setTooltip(new Tooltip("Kalender anzeigen"));
+    	appointmentCalendar.setOnAction(new EventHandler<ActionEvent>() {
+    	    @Override public void handle(ActionEvent e) {
+    	        LOGGER.debug("Appointment list");
+    	        Stage stage = (Stage) appointmentCalendar.getScene().getWindow();
+    	        stage.setTitle("Termine");
+    	        // TableView<Appointment> tv = DisplayAppointment.createAppointmentTableView();
+    	        GridPane tv = DisplayCalendar.getCalendarView();
+    	    	borderPane.setCenter(tv);
+    	    }
+    	});
+    	
+    	appointmentList.setGraphic(new ImageView(allImages.get("Paste.png")));
     	appointmentList.setTooltip(new Tooltip("Termine anzeigen"));
     	appointmentList.setOnAction(new EventHandler<ActionEvent>() {
     	    @Override public void handle(ActionEvent e) {
     	        LOGGER.debug("Appointment list");
     	        Stage stage = (Stage) appointmentList.getScene().getWindow();
     	        stage.setTitle("Termine");
-    	        // TableView<Appointment> tv = DisplayAppointment.createAppointmentTableView();
-    	        GridPane tv = DisplayCalendar.getCalendarView();
+    	        TableView<Appointment> tv = DisplayAppointment.createAppointmentTableView();
+    	        // GridPane tv = DisplayCalendar.getCalendarView();
     	    	borderPane.setCenter(tv);
     	    }
     	});
@@ -336,7 +352,7 @@ public class ApplicationWindow extends Application{
     	
     	
 
-    	tb.getItems().addAll(closeApp, homePage, patientList, patientAdd, appointmentList, 
+    	tb.getItems().addAll(closeApp, homePage, patientList, patientAdd, appointmentList, appointmentCalendar,
     			serviceList, serviceAdd, expensesList, expensesAdd, export, showCharts, helpPage);
     	
     	return tb;

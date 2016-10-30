@@ -24,7 +24,8 @@ public class Appointment extends AppointmentImpl {
 	private Service service;
 	private String description;
 	private Invoice invoice;
-	
+	private Boolean paid = false;
+
 	private long id = -1;
 	private Date created;
 	private Date modified;
@@ -84,6 +85,16 @@ public class Appointment extends AppointmentImpl {
 	}
 	public void setInvoice(Invoice invoice) {
 		this.invoice = invoice;
+	}
+	
+	public Boolean getPaid() {
+		return paid;
+	}
+	public Boolean isPaid() {
+		return paid;
+	}
+	public void setPaid(Boolean paid) {
+		this.paid = paid;
 	}
 	
 	public void save() throws SQLException{

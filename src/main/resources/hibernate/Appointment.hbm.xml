@@ -26,6 +26,9 @@
         <many-to-one name="service" class="ssd.app.model.Service" fetch="join">
             <column name="SERVICE" />
         </many-to-one>
+        <property name="paid" type="java.lang.Boolean">
+            <column name="PAID" default="FALSE"/>
+        </property>
         <property name="date" type="java.sql.Timestamp">
             <column name="DATE" />
         </property>

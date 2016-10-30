@@ -3,10 +3,12 @@ package ssd.app.view;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +26,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -38,6 +41,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TableColumn.CellDataFeatures;
+import javafx.scene.control.TableColumn.SortType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -375,6 +379,23 @@ public class DisplayAppointment {
         
         DateTimeFormatter myDateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
         final TableColumn<Appointment, String> appointmentDateColumn = new TableColumn<Appointment, String>("Datum");
+        appointmentDateColumn.setComparator(new Comparator<String>(){
+
+            @Override 
+            public int compare(String t, String t1) {
+            	try{
+            		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+            		Date d1 = format.parse(t);                
+            		Date d2 = format.parse(t1);
+            		return Long.compare(d1.getTime(), d2.getTime());
+            	}catch(ParseException p){
+            		p.printStackTrace();
+            	}
+            	return -1;
+                 
+            }
+            
+       });
         appointmentDateColumn.setCellValueFactory(new PropertyValueFactory<Appointment, String>("Date"));
         appointmentDateColumn.setCellValueFactory(
         	cellData -> new ReadOnlyObjectWrapper<String>(myDateFormatter.format(cellData.getValue().getDate().toLocalDateTime()))
@@ -396,8 +417,36 @@ public class DisplayAppointment {
         );
         appointmentServiceColumn.setEditable(false);
         
+        final TableColumn<Appointment, Appointment> appointmentPaidColumn = new TableColumn<Appointment, Appointment>("Bezahlt");
+        appointmentPaidColumn.setCellValueFactory(new Callback<CellDataFeatures<Appointment, Appointment>, ObservableValue<Appointment>>() {
+			@Override 
+			public ObservableValue<Appointment> call(CellDataFeatures<Appointment, Appointment> features) {
+				return new ReadOnlyObjectWrapper<Appointment>(features.getValue());
+			}
+		});
+        appointmentPaidColumn.setCellFactory(new Callback<TableColumn<Appointment, Appointment>, TableCell<Appointment, Appointment>>() {
+        	@Override 
+        	public TableCell<Appointment, Appointment> call(TableColumn<Appointment, Appointment> btnCol) {
+        		return new TableCell<Appointment, Appointment>() {
+        			@Override 
+        			public void updateItem(final Appointment appointment, boolean empty) {
+        				super.updateItem(appointment, empty);
+        				if(empty || appointment == null){	// don't show the button if there is no appointment
+        					return;
+        				}
+        				if(appointment.isPaid()){
+        					setStyle("-fx-background-color: green");
+        				}else{
+        					setStyle("-fx-background-color: red");
+        				}
+        			}
+        		};
+        	}
+        });
+        appointmentPaidColumn.setEditable(false);
+        
         appointmentTable.getColumns().addAll(appointmentAC, appointmentDelete, appointmentPatientColumn, appointmentDateColumn, 
-        		appointmentDurationColumn, appointmentServiceColumn, appointmentDescriptionColumn);
+        		appointmentDurationColumn, appointmentServiceColumn, appointmentPaidColumn, appointmentDescriptionColumn);
         
         List<Appointment> appointments = new ArrayList<Appointment>();
 		try {
@@ -413,6 +462,9 @@ public class DisplayAppointment {
 	        ObservableList<Appointment> data = FXCollections.observableList(appointments);
 	        appointmentTable.setItems(data);
 		}
+		
+		appointmentTable.getSortOrder().add(appointmentDateColumn);
+		appointmentDateColumn.setSortType(SortType.DESCENDING);
         return appointmentTable;
 	}
 
@@ -579,6 +631,12 @@ public class DisplayAppointment {
             }
         });
         
+        //****************** PAID ***************************************
+        CheckBox cbPaid = new CheckBox("Bezahlt");
+        if(appointment.isPaid()){
+        	cbPaid.setSelected(true);
+        }
+        
         //****************** SUBMIT BUTTON ******************************
         Button submit = new Button("Termin editieren");
         submit.setOnAction((ActionEvent event) -> {
@@ -590,6 +648,7 @@ public class DisplayAppointment {
         	appointment.setDescription(description.getText());
         	appointment.setService(comboBox.getValue());
         	appointment.setDuration(Double.parseDouble(appointmentDuration.getText()));
+        	appointment.setPaid(cbPaid.isSelected());
         	appointment.setCreated(new Date());
         	appointment.setModified(new Date());
         	try {
@@ -617,7 +676,8 @@ public class DisplayAppointment {
         gridPane.add(description, 0, 5, 3, 1);
         gridPane.add(lbDuration, 0, 6);
         gridPane.add(appointmentDuration, 1, 6, 2, 1);
-        gridPane.add(submit, 1, 7);
+        gridPane.add(cbPaid, 0, 7, 2, 1);
+        gridPane.add(submit, 1, 8);
         
         Scene scene = new Scene(gridPane, 300, 500);
         dialog.setScene(scene);
