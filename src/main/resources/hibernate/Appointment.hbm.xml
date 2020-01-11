@@ -23,6 +23,9 @@
         <property name="description" type="java.lang.String">
             <column name="DESCRIPTION" />
         </property>
+        <property name="calUID" type="java.lang.String">
+            <column name="CALUID" />
+        </property>
         <many-to-one name="service" class="ssd.app.model.Service" fetch="join">
             <column name="SERVICE" />
         </many-to-one>

@@ -1,7 +1,9 @@
 package ssd.app.helper;
 
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,6 +32,7 @@ import javafx.scene.control.Alert.AlertType;
 import ssd.app.model.Appointment;
 import ssd.app.model.Expense;
 
+@SuppressWarnings("restriction")
 public class ExportHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExportHelper.class);
 	
@@ -42,13 +45,17 @@ public class ExportHelper {
 	/*
 	 * Export the data for year 'year' and store the export file to 'to'. 
 	 */
-	public static void exportForYear(int year, String to){
+	public static void exportForYear(Boolean exportToXLS, int year, String to){
 		List<Appointment> appointments = new ArrayList<Appointment>();
 		List<Expense> expenses = new ArrayList<Expense>();
 		try {
 			appointments = AppointmentHelper.getInstance().getAppointments(year); // get all appointments
 			expenses = ExpensesHelper.getInstance().getExpenses(year);
-			writeToExcel(appointments, expenses, to);
+			if(exportToXLS){
+				writeToExcel(appointments, expenses, to);
+			}else{
+				writeToCSV(appointments, expenses, to);
+			}
 		} catch (SQLException e1) {
 			// ignore => just show nothing
 			LOGGER.error(e1.getMessage());
@@ -61,7 +68,100 @@ public class ExportHelper {
 			LOGGER.debug(app.toString());
 		}
 	}
+
+	/**
+	 * Write the appointments to an Excel file.
+	 * @param appointments
+	 * @param path
+	 * @throws IOException 
+	 */
+	private static void writeToCSV(List<Appointment> appointments, List<Expense> expenses, String path){
+    	BufferedWriter writer = null;
+    	Path _path = Paths.get(path, "export.csv");
+    	try{
+	        writer = new BufferedWriter(new FileWriter(_path.toString()));
+	        
+	        // write header line
+	        writer.write("Datum\t");
+	        writer.write("Preis\t");
+	        writer.write("Leistung\t");
+	        writer.write("Patient\t");
+	        writer.write("Geburtsdatum\n");
 	
+	        double income = 0;
+	        for(Appointment appointment : appointments){
+	            double _income = 0;
+            	if (appointment != null && appointment.getService() != null) {
+            		_income = appointment.getDuration() * appointment.getService().getCostPerUnit();
+            	}
+	            if(_income <= 0 || appointment.getPatient().toString().contains("Urlaub ;-)")){
+	            	continue;
+	            }
+	            income += _income;
+	            
+	            //first place in row is date
+	            Calendar cal = Calendar.getInstance();
+	            cal.setTimeInMillis(appointment.getDate().getTime());
+	            String date = LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH)).toString();
+	            writer.write(date + "\t");
+	            // third place in row is the price
+	            writer.write(String.valueOf(_income) + "\t");
+	            // fourth place in row is the service
+	            writer.write(appointment.getService().getName() + "\t");
+	            // fifth place in row is the patient
+	            writer.write(appointment.getPatient().toString() + "\t");
+	            // fifth place in row is the patient
+	            cal.setTimeInMillis(appointment.getPatient().getBirthday().getTime());
+	            String bdate = LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH)).toString();
+	            writer.write(bdate + "\n");
+	        }
+	        writer.write("\n\n");
+	        writer.write("Gesamte Einnahmen: \t");
+	        writer.write(String.valueOf(income) + "\n\n\n");
+	        
+	        double overallcost = 0;
+	        for(Expense expense : expenses){
+	            // first place in row is date
+	            Calendar cal = Calendar.getInstance();
+	            cal.setTimeInMillis(expense.getDate().getTime());
+	            String date = LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH)).toString();
+	            writer.write(date + "\t");
+	            // second row is the cost
+	            overallcost += expense.getCost();
+	            writer.write(String.valueOf(expense.getCost()) + "\t");
+	            // third row is the name
+	            writer.write(expense.getName() + "\t");
+	            // forth row is the description
+	            writer.write(expense.getDescription() + "\n");
+	        }
+	        
+	        writer.write("\n\n");
+	        writer.write("Gesamte Ausgaben: \t");
+	        writer.write(String.valueOf(overallcost) + "\n\n\n");
+	        
+	        writer.write("Einnamen - Ausgaben: \t");
+	        writer.write(String.valueOf(income - overallcost));
+    	}catch(IOException e){
+    		Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Export fehlgeschlagen");
+            alert.setHeaderText("Der Export war nicht erfolgreich");
+            alert.setContentText(e.getMessage());
+
+            alert.showAndWait();
+    	}finally {
+    		try {
+				writer.close();
+			} catch (IOException e) {}
+		}
+        
+		Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Export erfolgreich");
+        alert.setHeaderText("Der Export war erfolgreich");
+        alert.setContentText("Die Datei kann unter '" + _path.toString() + "' gefunden werden. ");
+
+        alert.showAndWait();
+    }
+    
 	/**
 	 * Write the appointments to an Excel file.
 	 * @param appointments
@@ -159,7 +259,7 @@ public class ExportHelper {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Alert alert = new Alert(AlertType.INFORMATION);
+		Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle("Export erfolgreich");
         alert.setHeaderText("Der Export war erfolgreich");
         alert.setContentText("Die Datei kann unter '" + _path.toString() + "' gefunden werden. ");

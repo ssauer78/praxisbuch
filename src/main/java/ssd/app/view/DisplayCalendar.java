@@ -93,7 +93,12 @@ public class DisplayCalendar{
 			e.printStackTrace();
 		}
         for (ssd.app.model.Appointment appointment : storedAppointments) {
-        	LocalDateTime start = appointment.getDate().toLocalDateTime();
+        	LocalDateTime start = LocalDateTime.now();
+        	try{
+        		start = appointment.getDate().toLocalDateTime();
+        	}catch(NullPointerException e){
+        		// TODO remove appointment from list
+        	}
         	LocalDateTime end = start.plusHours((long)appointment.getDuration());
         	appointments.add(new Agenda.AppointmentImplLocal()
 	            .withStartLocalDateTime(start)

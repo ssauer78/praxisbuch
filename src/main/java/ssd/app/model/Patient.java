@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 
 import javafx.scene.image.Image;
 
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ public class Patient extends Item{
 	private String insurance = "";
 	private Boolean privatelyInsured = false;
 	private Boolean assistanceInsurance = false;
-	private Timestamp birthday;
+	private Timestamp birthday = new Timestamp(System.currentTimeMillis());
 	//private Address address;
 	private String phone = "";
 	private String email = "";
@@ -92,6 +93,10 @@ public class Patient extends Item{
 		this.insurance = insurance;
 	}
 	public Timestamp getBirthday() {
+		if(birthday == null){
+			// return todays date as a placeholder
+			return new Timestamp(System.currentTimeMillis());
+		}
 		return birthday;
 	}
 	public void setBirthday(Timestamp birthday) {

@@ -12,7 +12,9 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -25,6 +27,7 @@ import org.slf4j.LoggerFactory;
  * https://examples.javacodegeeks.com/core-java/writeread-excel-files-in-java-example/
  * 
  */
+@SuppressWarnings("restriction")
 public class DisplayExport {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DisplayExport.class);
 	
@@ -70,19 +73,22 @@ public class DisplayExport {
             }
         });
         
+        CheckBox checkbox = new CheckBox("Write to Excel");
+        checkbox.setTooltip(new Tooltip("Aktivieren um nach Excel zu expoertieren, ansonsten wird nach CSV exportieret"));
+        
         // Create the export button and add functionality
         Button export = new Button("Exportieren");
         export.setOnAction((ActionEvent event) -> {	// if the button is triggered...
-        	LOGGER.debug(year.valueProperty().getValue().toString());
-        	ExportHelper.exportForYear(year.getValue(), lbShowWhere.getText()); // TODO we might want to store the directory s
+        	ExportHelper.exportForYear(checkbox.selectedProperty().get(), year.getValue(), lbShowWhere.getText()); // TODO we might want to store the directory 
         });
         
         gridPane.add(lbExport, 0, 0);	// column 1 ; row 1
         gridPane.add(year, 1, 0);	// column 2 ; row 1
-        gridPane.add(lbSaveAs, 0, 1);
-        gridPane.add(btnOpenDirectoryChooser, 1, 1);
-        gridPane.add(export, 0, 2);
-        gridPane.add(lbShowWhere, 1, 2);
+        gridPane.add(checkbox, 1, 1);
+        gridPane.add(lbSaveAs, 0, 2);
+        gridPane.add(btnOpenDirectoryChooser, 1, 2);
+        gridPane.add(export, 0, 3);
+        gridPane.add(lbShowWhere, 1, 3);
         
 		return gridPane;
 	}

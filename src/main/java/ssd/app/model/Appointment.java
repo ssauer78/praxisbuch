@@ -24,7 +24,8 @@ public class Appointment extends AppointmentImpl {
 	private Service service;
 	private String description;
 	private Invoice invoice;
-	private Boolean paid = false;
+	private Boolean paid = true;
+	private String calUID;
 
 	private long id = -1;
 	private Date created;
@@ -97,6 +98,13 @@ public class Appointment extends AppointmentImpl {
 		this.paid = paid;
 	}
 	
+	public String getCalUID() {
+		return calUID;
+	}
+	public void setCalUID(String calUID) {
+		this.calUID = calUID;
+	}
+
 	public void save() throws SQLException{
 		Session session = DbHelper.getInstance().openSession();
 		Transaction tx = null;

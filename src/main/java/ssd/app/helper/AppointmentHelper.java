@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import ssd.app.dao.DbHelper;
 import ssd.app.model.Appointment;
 import ssd.app.model.Patient;
@@ -35,6 +36,25 @@ public class AppointmentHelper {
 	}
 	
 	private AppointmentHelper(){
+	}
+	
+	/**
+	 * Get a filteredlist object with all data initially. 
+	 * @param filter
+	 * @return
+	 */
+	public static FilteredList<Appointment> initializAppointmentList(String filter){
+		List<Appointment> appointments = new ArrayList<Appointment>();
+		try {
+			appointments = AppointmentHelper.getInstance().getAppointments(0);
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		ObservableList<Appointment> data = FXCollections.observableList(appointments);
+		FilteredList<Appointment> filteredData = new FilteredList<>(data, p -> true);
+		return filteredData;
 	}
 	
 	/**
@@ -62,7 +82,7 @@ public class AppointmentHelper {
 				date = dateFormat.parse("31/12/"  + year);
 				time = date.getTime();
 				Timestamp end = new Timestamp(time);
-				query = session.createQuery("FROM Appointment WHERE date BETWEEN :start AND :end").setParameter("start", start).setParameter("end", end);
+				query = session.createQuery("FROM Appointment WHERE date BETWEEN :start AND :end ORDER BY date").setParameter("start", start).setParameter("end", end);
 			}
 			if(query == null){
 				query = session.createQuery("FROM Appointment");
@@ -107,7 +127,9 @@ public class AppointmentHelper {
 		try{
 			tx = session.beginTransaction();
 			Query query = null;
-			query = session.createQuery("FROM Appointment WHERE date BETWEEN :start AND :end").setParameter("start", tstart).setParameter("end", tend);
+			query = session.createQuery("FROM Appointment WHERE date BETWEEN :start AND :end ORDER BY date")
+					.setParameter("start", tstart)
+					.setParameter("end", tend);
 			appointments = (List<Appointment>)query.list(); 
 			tx.commit();
 		}catch (HibernateException e) {
@@ -135,7 +157,7 @@ public class AppointmentHelper {
 		Transaction tx = null;
 		try{
 			tx = session.beginTransaction();
-			Query query = session.createQuery("FROM Appointment WHERE patient = :patient").setParameter("patient", patient);
+			Query query = session.createQuery("FROM Appointment WHERE patient = :patient ORDER BY date").setParameter("patient", patient);
 			
 			appointments = (List<Appointment>)query.list(); 
 			tx.commit();
@@ -173,6 +195,40 @@ public class AppointmentHelper {
 		
 	}
 
+	/**
+	 * Get all appointments of today and following
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static ObservableList<Appointment> getAllFutureAppointments() {
+		List<Appointment> appointments = new ArrayList<Appointment>();
+		Session session = DbHelper.getInstance().openSession();
+		Transaction tx = null;
+		try{
+			LocalDateTime localDate = LocalDateTime.now();
+			Timestamp timestamp = Timestamp.valueOf(localDate);
+			LOGGER.debug(timestamp.toString());
+			tx = session.beginTransaction();
+			Query query = null;
+			query = session.createQuery("FROM Appointment WHERE date >= :date ORDER BY date DESC")
+					.setParameter("date", timestamp);
+			appointments = (List<Appointment>)query.list();
+			LOGGER.debug("number appointments: " + appointments.size());
+			tx.commit();
+		}catch (HibernateException e) {
+			if(tx != null){
+				tx.rollback();
+			}
+			e.printStackTrace(); 
+		}finally {
+			session.close(); 
+		}
+		ObservableList<Appointment> _appointments = FXCollections.observableArrayList(appointments);
+		return _appointments;
+	}
+	
+	
 	/**
 	 * Get #count appointments from either before or after the current date 
 	 * and return as an ArrayList sorted by date. 

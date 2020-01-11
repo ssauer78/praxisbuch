@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,10 +64,10 @@ import ssd.app.model.Appointment;
 import ssd.app.model.Patient;
 import ssd.app.model.PatientDynamic;
 
+@SuppressWarnings({ "unchecked", "restriction" })
 public class DisplayPatient {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DisplayPatient.class);
 
-	@SuppressWarnings("unchecked")
 	protected static TableView<Patient> createPatientTableView(FilteredList<Patient> patients) {
 		TableView<Patient> patientTable = new TableView<Patient>();
 		patientTable.setEditable(true);
@@ -111,7 +110,8 @@ public class DisplayPatient {
         					@Override 
         					public void handle(ActionEvent event) {
         						LOGGER.debug("Handle button click 'add new appointment'");
-        						Stage dialog = DisplayAppointment.createAddAppointmentDialog(patient);
+        						DisplayAppointment displayAppointment = new DisplayAppointment();
+        						Stage dialog = displayAppointment.createAddAppointmentDialog(patient);
         						dialog.show();
         					}
         				});
@@ -464,7 +464,6 @@ public class DisplayPatient {
 				Stage stage = (Stage) submit.getScene().getWindow();
     	        stage.setTitle("Patienten Liste");
     	        GridPane gp = DisplayPatient.createPatientTableViewWithFilter();
-				// TableView<Patient> tv = DisplayPatient.createPatientTableView(null);
 				BorderPane borderPane = ApplicationWindow.getBorderPane();
     	        borderPane.setCenter(gp);
 			} catch (Exception e) {
@@ -554,11 +553,11 @@ public class DisplayPatient {
         StringConverter<LocalDate> converter = ApplicationHelper.getStringConverterLocalDate();
         birthdayPicker.setConverter(converter);
         birthdayPicker.setPromptText("Geburtstag " + ApplicationHelper.datePattern.toLowerCase());
-        if(patient.getBirthday() != null){
-	        Calendar cal = Calendar.getInstance();
-	        cal.setTimeInMillis(patient.getBirthday().getTime());
-	        birthdayPicker.setValue(LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH)));
-        }
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(patient.getBirthday().getTime());
+        birthdayPicker.setValue(LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH)));
+
         TextField tfInurance = new TextField();
         tfInurance.setPromptText("Versicherung *");
         tfInurance.setText(patient.getInsurance());
@@ -715,10 +714,12 @@ public class DisplayPatient {
 	                    @Override
 	                    protected void updateItem(Appointment a, boolean bln) {
 	                        super.updateItem(a, bln);
-	                        if (a != null) {
+	                        if (a != null && a.getDate() != null) {
 	                        	DateFormat outputFormatter = new SimpleDateFormat("dd.MM.yyyy");
 	                        	String output = outputFormatter.format(a.getDate());	
 	                            setText(output + " - " + a.getService().getName() + " - " + a.getDuration());
+	                        }else if(a != null && a.getDate() == null){
+	                        	setText("Error - Termin ohne Datum...?");
 	                        }
 	                    }
 	                };

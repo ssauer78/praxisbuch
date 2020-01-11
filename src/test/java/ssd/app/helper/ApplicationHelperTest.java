@@ -9,6 +9,7 @@ import org.junit.Test;
 import javafx.util.StringConverter;
 import ssd.app.model.Patient;
 
+@SuppressWarnings("restriction")
 public class ApplicationHelperTest {
 
 	@Test

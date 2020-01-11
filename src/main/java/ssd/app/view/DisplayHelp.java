@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.effect.Reflection;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -20,7 +22,7 @@ import javafx.stage.Stage;
 public class DisplayHelp {
 private static final Logger log = LoggerFactory.getLogger(DisplayHelp.class);
 	
-	protected static GridPane createHelpPane(Stage stage, Map<String, Image> allImages) {
+	protected static TabPane createHelpPane(Stage stage, Map<String, Image> allImages) {
 		log.debug("Creating help pane...");
 		GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(20, 10, 20, 20));
@@ -31,7 +33,7 @@ private static final Logger log = LoggerFactory.getLogger(DisplayHelp.class);
         t.setX(70.0f);
         t.setY(50.0f);
         t.setCache(true);
-        t.setText("Praxisbuch - Hilfe");
+        t.setText("Menü1 - Hilfe");
         t.setFill(Color.GREEN);
         t.setFont(Font.font(null, FontWeight.BOLD, 22));
          
@@ -41,7 +43,7 @@ private static final Logger log = LoggerFactory.getLogger(DisplayHelp.class);
         
         Label lbHome = new Label("Hier sehen Sie die letzen und nächsten Termine. ");
         Label lbPatients = new Label("Zeigt eine List mit Patienten in einer Tabelle. In der ersten Spalte ist es möglich einen neuen Termin anzulegen, den Patienten zu editieren oder zu löschen. ");
-        
+        lbPatients.setWrapText(true);
         gridPane.add(t, 0, 0, 2, 1);
         
         gridPane.add(new ImageView(allImages.get("Home.png")), 0, 3);
@@ -50,6 +52,14 @@ private static final Logger log = LoggerFactory.getLogger(DisplayHelp.class);
         gridPane.add(new ImageView(allImages.get("Users.png")), 0, 4);
         gridPane.add(lbPatients, 1, 4);
         
-        return gridPane;
+        
+        TabPane tabPane = new TabPane();
+        Tab tab = new Tab();
+        tab.setText("Menü");
+        tab.setContent(gridPane);
+        tab.setClosable(false);
+        tabPane.getTabs().add(tab);
+        
+        return tabPane;
 	}
 }

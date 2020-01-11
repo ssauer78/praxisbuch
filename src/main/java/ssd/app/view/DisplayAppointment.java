@@ -5,12 +5,12 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -18,6 +18,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -46,6 +48,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -62,15 +65,16 @@ import ssd.app.model.Appointment;
 import ssd.app.model.Patient;
 import ssd.app.model.Service;
 
+@SuppressWarnings("restriction")
 public class DisplayAppointment {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DisplayAppointment.class);
 	
-	protected static Stage createAddAppointmentDialog(Long patientId) {
+	protected Stage createAddAppointmentDialog(Long patientId) {
 		Patient patient = PatientsHelper.getInstance().getPatient(patientId);
 		return createAddAppointmentDialog(patient);
 	}
 	
-	protected static Stage createAddAppointmentDialog(Patient patient) {
+	protected Stage createAddAppointmentDialog(Patient patient) {
 		Stage dialog = new Stage();
 		dialog.initModality(Modality.APPLICATION_MODAL);
 		Stage stage = (Stage)ApplicationWindow.getScene().getWindow();// (Stage) closeApp.getScene().getWindow();
@@ -218,28 +222,10 @@ public class DisplayAppointment {
             }
         });
         
-        //****************** SUBMIT BUTTON ******************************
         Button submit = new Button("Termin erstellen");
         submit.setOnAction((ActionEvent event) -> {
-        	LOGGER.debug("Create appointment");
-        	Appointment appointment = new Appointment();
-        	appointment.setPatient(patient);
-        	LocalDate localDate = datePicker.getValue();
-        	
-        	int hours = ((Double)timeSlider.getValue()).intValue();
-        	int minutes = ((Double)timeMSlider.getValue()).intValue() * 15;
-        	appointment.setDate(Timestamp.valueOf(localDate.atTime(hours, minutes)));
-        	appointment.setDescription(description.getText());
-        	appointment.setService(comboBox.getValue());
-        	appointment.setDuration(Double.parseDouble(appointmentDuration.getText()));
-        	appointment.setCreated(new Date());
-        	appointment.setModified(new Date());
-        	try {
-				appointment.save();
-				dialog.close();
-			} catch (Exception e) {
-				ApplicationHelper.showError(e, "Speichen eines Termins fehlgeschlagen", "Der Termin konnte nicht gespeichert werden. ");
-			}
+        	Timestamp dateTime = getSelectedDateTimeAsTimestamp(datePicker, timeSlider, timeMSlider);
+        	this.createAppointment(dialog, patient, dateTime, description.getText(), comboBox.getValue(), Double.parseDouble(appointmentDuration.getText()));
         });
         
         gridPane.add(lbPatient, 0, 0, 3, 1);	// column 1 ; row 1
@@ -263,8 +249,80 @@ public class DisplayAppointment {
 		return dialog;
 	}
 	
+	private Timestamp getSelectedDateTimeAsTimestamp(DatePicker datePicker, Slider hoursSlider, Slider minutesSlider){
+		LocalDate localDate = datePicker.getValue();
+		if(localDate == null){
+			return null;
+		}
+    	int hours = ((Double)hoursSlider.getValue()).intValue();
+    	int minutes = ((Double)minutesSlider.getValue()).intValue() * 15;
+    	return Timestamp.valueOf(localDate.atTime(hours, minutes));
+	}
+	
+	private void createAppointment(Stage dialog, Patient patient, Timestamp selectedDateTime, String description, Service service, Double duration) {
+		Appointment appointment = new Appointment();
+    	appointment.setPatient(patient);
+    	appointment.setDate(selectedDateTime);
+    	appointment.setDescription(description);
+    	appointment.setService(service);
+    	appointment.setDuration(duration);
+    	appointment.setCreated(new Date());
+    	appointment.setModified(new Date());
+    	try {
+			appointment.save();
+			dialog.close();
+		} catch (Exception e) {
+			ApplicationHelper.showError(e, "Speichen eines Termins fehlgeschlagen", "Der Termin konnte nicht gespeichert werden. ");
+		}
+	}
+	
+	protected static GridPane createAppointmentTablePane(){
+		GridPane full = new GridPane();
+
+		FilteredList<Appointment> appointments = AppointmentHelper.initializAppointmentList("");
+        TextField filterField = new TextField();
+        filterField.setTooltip(new Tooltip("Patientenliste filtern"));
+        filterField.setPromptText("Filter");
+        filterField.textProperty().addListener((observable, oldValue, newValue) -> {
+        	appointments.setPredicate(appointment -> {
+        		Patient patient = appointment.getPatient();
+                // If filter text is empty, display all persons.
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                // Compare first name and last name of every person with filter text.
+                String lowerCaseFilter = newValue.toLowerCase();
+                if (patient.getName().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches first name.
+                } else if (patient.getGivenName().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches last name.
+                } else if (patient.getInsurance().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches last name.
+                } else if (patient.getEmail().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches last name.
+                } else if (patient.getAddress().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches last name.
+                } else if (patient.getZipcode().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches last name.
+                } else if (patient.getCity() != null && patient.getCity().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches last name.
+                } else if (patient.getCountry() != null && patient.getCountry().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches last name.
+                }
+                return false; // Does not match.
+            });
+        });
+        TableView<Appointment> tv = createAppointmentTableView(appointments);
+        GridPane.setHgrow(tv, Priority.ALWAYS);
+		GridPane.setVgrow(tv, Priority.ALWAYS);
+		full.add(filterField, 0, 0);
+		full.add(tv, 0, 1);
+		return full;
+	}
+	
 	@SuppressWarnings("unchecked")
-	protected static TableView<Appointment> createAppointmentTableView(){
+	protected static TableView<Appointment> createAppointmentTableView(FilteredList<Appointment> appointments){
 		TableView<Appointment> appointmentTable = new TableView<Appointment>();
         appointmentTable.setEditable(true);
         
@@ -296,6 +354,7 @@ public class DisplayAppointment {
         				super.updateItem(appointment, empty);
 
         				if(empty){	// don't show the button if there is no patient
+        					setGraphic( null );
         					return;
         				}
         				setGraphic(button);
@@ -341,6 +400,7 @@ public class DisplayAppointment {
         				super.updateItem(appointment, empty);
 
         				if(empty){	// don't show the button if there is no patient
+        					setGraphic( null );
         					return;
         				}
         				setGraphic(button);
@@ -358,8 +418,8 @@ public class DisplayAppointment {
         								appointment.delete();
     									Stage stage = (Stage) ApplicationWindow.getScene().getWindow();
     					    	        stage.setTitle("Termine");
-    									TableView<Appointment> tv = createAppointmentTableView();
-    					    	        ApplicationWindow.getBorderPane().setCenter(tv);
+    					    	        GridPane gp = DisplayAppointment.createAppointmentTablePane();
+    					    	        ApplicationWindow.getBorderPane().setCenter(gp);
         							}
 								} catch (SQLException e) {
 									ApplicationHelper.showError(e, "Löschen des Termins fehlgeschlagen", 
@@ -395,10 +455,15 @@ public class DisplayAppointment {
                  
             }
             
-       });
+        });
         appointmentDateColumn.setCellValueFactory(new PropertyValueFactory<Appointment, String>("Date"));
         appointmentDateColumn.setCellValueFactory(
-        	cellData -> new ReadOnlyObjectWrapper<String>(myDateFormatter.format(cellData.getValue().getDate().toLocalDateTime()))
+        	cellData -> {
+        		if(cellData != null && cellData.getValue() != null && cellData.getValue().getDate() != null){
+        			return new ReadOnlyObjectWrapper<String>(myDateFormatter.format(cellData.getValue().getDate().toLocalDateTime()));
+        		}
+        		return new ReadOnlyObjectWrapper<String>(myDateFormatter.format(LocalDateTime.now()));
+        	}
         );
         appointmentDateColumn.setEditable(false);
         
@@ -432,6 +497,7 @@ public class DisplayAppointment {
         			public void updateItem(final Appointment appointment, boolean empty) {
         				super.updateItem(appointment, empty);
         				if(empty || appointment == null){	// don't show the button if there is no appointment
+        					setStyle("-fx-background-color: transparent");
         					return;
         				}
         				if(appointment.isPaid()){
@@ -448,26 +514,16 @@ public class DisplayAppointment {
         appointmentTable.getColumns().addAll(appointmentAC, appointmentDelete, appointmentPatientColumn, appointmentDateColumn, 
         		appointmentDurationColumn, appointmentServiceColumn, appointmentPaidColumn, appointmentDescriptionColumn);
         
-        List<Appointment> appointments = new ArrayList<Appointment>();
-		try {
-			appointments = AppointmentHelper.getInstance().getAppointments(0); // get all appointments 
-		} catch (SQLException e1) {
-			// ignore => just show nothing
-			LOGGER.error(e1.getMessage());
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		if(appointments.size() > 0){
-	        ObservableList<Appointment> data = FXCollections.observableList(appointments);
-	        appointmentTable.setItems(data);
+        SortedList<Appointment> sortedAppointments = new SortedList<>(appointments);
+		if(sortedAppointments.size() > 0){
+	        sortedAppointments.comparatorProperty().bind(appointmentTable.comparatorProperty());
+	        appointmentTable.setItems(sortedAppointments);
 		}
 		
 		appointmentTable.getSortOrder().add(appointmentDateColumn);
 		appointmentDateColumn.setSortType(SortType.DESCENDING);
         return appointmentTable;
 	}
-
 
 
 	protected static Stage createEditAppointmentDialog(Appointment appointment) {
@@ -655,8 +711,9 @@ public class DisplayAppointment {
 				appointment.save();
 				dialog.close();
 				stage.setTitle("Termine");
-				TableView<Appointment> tv = DisplayAppointment.createAppointmentTableView();
-    	        ApplicationWindow.getBorderPane().setCenter(tv);
+				// TableView<Appointment> tv = DisplayAppointment.createAppointmentTableView();
+				GridPane gp = DisplayAppointment.createAppointmentTablePane();
+    	        ApplicationWindow.getBorderPane().setCenter(gp);
 			} catch (Exception e) {
 				ApplicationHelper.showError(e, "Speichen eines Termins fehlgeschlagen", "Der Termin konnte nicht gespeichert werden. ");
 			}
